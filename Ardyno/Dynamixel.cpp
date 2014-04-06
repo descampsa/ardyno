@@ -100,7 +100,7 @@ void DynamixelDevice::transaction(uint8_t aInstruction, uint8_t aLenght, uint8_t
 	mPacket.mData=aData;
 	mPacket.mCheckSum=mPacket.checkSum();
 	mInterface.sendPacket(mPacket);
-	if(mWaitResponse && mPacket.mID!=BROADCAST_ID)
+	if((mWaitResponse || mPacket.mInstruction==DYN_READ) && mPacket.mID!=BROADCAST_ID)
 	{
 		mInterface.receivePacket(mPacket);
 	}
