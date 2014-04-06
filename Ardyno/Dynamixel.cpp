@@ -92,6 +92,8 @@ DynamixelStatus DynamixelDevice::reset()
 	return mPacket.mStatus;
 }
 
+uint8_t DynamixelDevice::sInternalBuffer[]={0};
+
 void DynamixelDevice::transaction(uint8_t aInstruction, uint8_t aLenght, uint8_t *aData)
 {
 	mPacket.mID=mID;

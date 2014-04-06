@@ -53,6 +53,8 @@ enum DynInstruction
 	DYN_SYNC_WRITE	=0x07
 };
 
+#define DYN_INTERNAL_BUFFER_SIZE 32
+
 class DynamixelDevice
 {
 	public:
@@ -68,6 +70,14 @@ class DynamixelDevice
 	DynamixelStatus regWrite(uint8_t aAddress, uint8_t aSize, uint8_t *aPtr);
 	DynamixelStatus action();
 	DynamixelStatus reset();
+	
+	//sizeof(T) must be lower than DYN_INTERNAL_BUFFER_SIZE, and in any case lower than 256
+	template<class T>
+	inline DynamixelStatus read(uint8_t aAddress, T& aData);
+	template<class T>
+	inline DynamixelStatus write(uint8_t aAddress, const T& aData);
+	template<class T>
+	inline DynamixelStatus regWrite(uint8_t aAddress, const T& aData);
 
 	private:
 	
@@ -78,6 +88,28 @@ class DynamixelDevice
 	bool mWaitResponse;
 	
 	DynamixelPacket mPacket;
+	
+	static uint8_t sInternalBuffer[DYN_INTERNAL_BUFFER_SIZE];
 };
+
+
+template<class T>
+DynamixelStatus DynamixelDevice::read(uint8_t aAddress, T& aData)
+{
+	read(aAddress, uint8_t(sizeof(T)), sInternalBuffer);
+	memcpy(&aData, sInternalBuffer, sizeof(T));
+}
+template<class T>
+DynamixelStatus DynamixelDevice::write(uint8_t aAddress, const T& aData)
+{
+	memcpy(sInternalBuffer+1, &aData, sizeof(T));
+	write(aAddress, uint8_t(sizeof(T)), sInternalBuffer+1);
+}
+template<class T>
+DynamixelStatus DynamixelDevice::regWrite(uint8_t aAddress, const T& aData)
+{
+	memcpy(sInternalBuffer+1, &aData, sizeof(T));
+	regWrite(aAddress, uint8_t(sizeof(T)), sInternalBuffer+1);
+}
 
 #endif
