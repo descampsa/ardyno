@@ -19,8 +19,7 @@ class SerialController:public StreamController
 {
 	public:
 	
-	SerialController();
-	SerialController(volatile uint8_t *aConfigRegister, uint8_t mRxEnable, uint8_t mTxEnable, uint8_t mRxPin, uint8_t mTxPin);
+	SerialController(uint8_t aUART=0);
 	virtual ~SerialController();
 	
 	virtual void readMode();
