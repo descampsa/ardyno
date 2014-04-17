@@ -1,3 +1,7 @@
+/**
+ * \file StreamController.cpp
+*/
+
 
 #include "Arduino.h"
 //#include <avr/io.h>
@@ -11,10 +15,10 @@ StreamController::StreamController()
 StreamController::~StreamController(){}
 
 
-SerialController::SerialController(uint8_t aUART)
+SerialController::SerialController(uint8_t aSerial)
 {
 #if defined(HAVE_HWSERIAL0)
-	if(aUART==0)
+	if(aSerial==0)
 	{
 		mConfigRegister = &UCSR0B;
 		mRxEnable = 1<<RXEN0;
@@ -24,7 +28,7 @@ SerialController::SerialController(uint8_t aUART)
 	}
 #endif
 #if defined(HAVE_HWSERIAL1)
-	if(aUART==1)
+	if(aSerial==1)
 	{
 		mConfigRegister = &UCSR1B;
 		mRxEnable = 1<<RXEN1;
@@ -34,7 +38,7 @@ SerialController::SerialController(uint8_t aUART)
 	}
 #endif
 #if defined(HAVE_HWSERIAL2)
-	if(aUART==2)
+	if(aSerial==2)
 	{
 		mConfigRegister = &UCSR2B;
 		mRxEnable = 1<<RXEN2;
@@ -44,7 +48,7 @@ SerialController::SerialController(uint8_t aUART)
 	}
 #endif
 #if defined(HAVE_HWSERIAL3)
-	if(aUART==3)
+	if(aSerial==3)
 	{
 		mConfigRegister = &UCSR3B;
 		mRxEnable = 1<<RXEN3;

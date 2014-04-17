@@ -1,3 +1,6 @@
+/**
+ * \file Dynamixel.cpp
+*/
 
 #include "Dynamixel.h"
 
