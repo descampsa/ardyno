@@ -25,11 +25,13 @@ class StreamController
 	
 	/**
 	 * \brief Switch stream to read (receive)) mode 
+	 *
 	 * Default implementation do nothing.
 	*/
 	virtual void readMode(){}
 	/**
 	 * \brief Switch stream to write (send) mode 
+	 *
 	 * Default implementation do nothing.
 	*/
 	virtual void writeMode(){}
@@ -46,6 +48,7 @@ class SerialController:public StreamController
 	/**
 	 * \brief Constructor
 	 * \param aSerial[in] : index of the Serial connection used
+	 *
 	 * Use 0 (default) for Serial, 1 for Serial1, 2 for Serial2 or 3 for Serial3
 	*/
 	SerialController(uint8_t aSerial=0);
