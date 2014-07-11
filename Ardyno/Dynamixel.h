@@ -99,6 +99,19 @@ enum DynInstruction
 
 /**
  * \brief Dynamixel status values
+ *
+ * How to interpret status value :
+ *
+ * If (status&DYN_STATUS_COM_ERROR)==0 , the value is the 
+ * the status returned by the motor, describing its internal
+ * error.
+ * If (status&DYN_STATUS_COM_ERROR)==1, there was an error during
+ * communication, and the value describe that error.
+ *
+ * DYN_STATUS_CHECKSUM_ERROR may appear in both cases, in the first
+ * case, it means there was an error in the checksum of the 
+ * instruction packet, in second case in the response packet.
+ *
 */
 enum DynStatus
 {
@@ -106,7 +119,7 @@ enum DynStatus
 	
 	DYN_STATUS_INPUT_VOLTAGE_ERROR	= 1,
 	DYN_STATUS_ANGLE_LIMIT_ERROR	= 2,
-	DYN_STATUS_OVERHEATNG_ERROR		= 4,
+	DYN_STATUS_OVERHEATING_ERROR	= 4,
 	DYN_STATUS_RANGE_ERROR			= 8,
 	DYN_STATUS_CHECKSUM_ERROR		= 16,
 	DYN_STATUS_OVERLOAD_ERROR		= 32,
