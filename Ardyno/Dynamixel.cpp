@@ -19,6 +19,7 @@ DynamixelInterface::DynamixelInterface(Stream &aStream, StreamController &aStrea
 	mStream(aStream), mStreamController(aStreamController)
 {
 	mStreamController.readMode();
+	mStream.setTimeout(1); // return delay time is never more than 1 millisecond
 }
 
 void DynamixelInterface::sendPacket(const DynamixelPacket &aPacket)
@@ -43,15 +44,35 @@ void DynamixelInterface::sendPacket(const DynamixelPacket &aPacket)
 void DynamixelInterface::receivePacket(DynamixelPacket &aPacket)
 {
 	static char header[2];
-	mStream.readBytes(header,2);
-	mStream.readBytes(reinterpret_cast<char*>(&aPacket), 3);
-	mStream.readBytes(reinterpret_cast<char*>(aPacket.mData), aPacket.mLenght-2);
-	mStream.readBytes(reinterpret_cast<char*>(&(aPacket.mCheckSum)),1);
+	if(mStream.readBytes(header,2)<2)
+	{
+		aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
+		return;
+	}
+	if(mStream.readBytes(reinterpret_cast<char*>(&aPacket), 3)<3)
+	{
+		aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
+		return;
+	}
+	if(mStream.readBytes(reinterpret_cast<char*>(aPacket.mData), aPacket.mLenght-2)<(aPacket.mLenght-2))
+	{
+		aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
+		return;
+	}
+	if(mStream.readBytes(reinterpret_cast<char*>(&(aPacket.mCheckSum)),1)<1)
+	{
+		aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
+		return;
+	}
+	if(aPacket.checkSum()!=aPacket.mCheckSum)
+	{
+		aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_CHECKSUM_ERROR;
+	}
 }
 
 
 DynamixelDevice::DynamixelDevice(DynamixelInterface &aInterface, DynamixelID aID):
-	mInterface(aInterface), mID(aID), mWaitResponse(true)
+	mInterface(aInterface), mID(aID), mStatusReturnLevel(2)
 {}
 
 DynamixelStatus DynamixelDevice::ping()
@@ -105,8 +126,9 @@ void DynamixelDevice::transaction(uint8_t aInstruction, uint8_t aLenght, uint8_t
 	mPacket.mData=aData;
 	mPacket.mCheckSum=mPacket.checkSum();
 	mInterface.sendPacket(mPacket);
-	if((mWaitResponse || mPacket.mInstruction==DYN_READ) && mPacket.mID!=BROADCAST_ID)
+	if( (mStatusReturnLevel>1 || (mStatusReturnLevel>0 && mPacket.mInstruction==DYN_READ) || mPacket.mInstruction==DYN_PING) && mPacket.mID!=BROADCAST_ID)
 	{
 		mInterface.receivePacket(mPacket);
 	}
 }
+

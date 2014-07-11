@@ -73,7 +73,7 @@ class DynamixelInterface
 	 * \param[out] aPacket : Received packet. mData field must be previously allocated
 	 *
 	 * The function wait for a new packet on the bus. Timeout depends of timeout of the underlying stream.
-	 * \todo Return error code in case of communication error (timeout, checksum error, ...)
+	 * Return error code in case of communication error (timeout, checksum error, ...)
 	*/
 	void receivePacket(DynamixelPacket &aPacket);
 	
@@ -88,13 +88,33 @@ class DynamixelInterface
 */
 enum DynInstruction
 {
-	DYN_PING		=0x01,
-	DYN_READ		=0x02,
-	DYN_WRITE		=0x03,
-	DYN_REG_WRITE	=0x04,
-	DYN_ACTION		=0x05,
-	DYN_RESET		=0x06,
-	DYN_SYNC_WRITE	=0x07
+	DYN_PING		= 0x01,
+	DYN_READ		= 0x02,
+	DYN_WRITE		= 0x03,
+	DYN_REG_WRITE	= 0x04,
+	DYN_ACTION		= 0x05,
+	DYN_RESET		= 0x06,
+	DYN_SYNC_WRITE	= 0x07
+};
+
+/**
+ * \brief Dynamixel status values
+*/
+enum DynStatus
+{
+	DYN_STATUS_OK					= 0,
+	
+	DYN_STATUS_INPUT_VOLTAGE_ERROR	= 1,
+	DYN_STATUS_ANGLE_LIMIT_ERROR	= 2,
+	DYN_STATUS_OVERHEATNG_ERROR		= 4,
+	DYN_STATUS_RANGE_ERROR			= 8,
+	DYN_STATUS_CHECKSUM_ERROR		= 16,
+	DYN_STATUS_OVERLOAD_ERROR		= 32,
+	DYN_STATUS_INSTRUCTION_ERROR	= 64,
+	
+	DYN_STATUS_TIMEOUT				=1,
+	
+	DYN_STATUS_COM_ERROR	= 128
 };
 
 /**
@@ -178,14 +198,21 @@ class DynamixelDevice
 	inline DynamixelStatus write(uint8_t aAddress, const T& aData);
 	template<class T>
 	inline DynamixelStatus regWrite(uint8_t aAddress, const T& aData);
-
+	
+	DynamixelID id()const
+	{
+		return mID;
+	}
+	
+	DynamixelStatus init();
+	
 	private:
 	
 	void transaction(uint8_t aInstruction, uint8_t aLenght, uint8_t *aData);
 	
 	DynamixelInterface &mInterface;
 	DynamixelID mID;
-	bool mWaitResponse;
+	uint8_t mStatusReturnLevel;
 	
 	DynamixelPacket mPacket;
 	
