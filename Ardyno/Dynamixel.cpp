@@ -116,6 +116,21 @@ DynamixelStatus DynamixelDevice::reset()
 	return mPacket.mStatus;
 }
 
+DynamixelStatus DynamixelDevice::init()
+{
+	DynamixelStatus status=ping();
+	if(status!=DYN_STATUS_OK)
+	{
+		return status;
+	}
+	status=read(DYN_ADDRESS_SRL, mStatusReturnLevel);
+	if(status&DYN_STATUS_TIMEOUT)
+	{
+		mStatusReturnLevel=0;
+	}
+	return DYN_STATUS_OK;
+}
+
 uint8_t DynamixelDevice::sInternalBuffer[]={0};
 
 void DynamixelDevice::transaction(uint8_t aInstruction, uint8_t aLenght, uint8_t *aData)
@@ -129,6 +144,10 @@ void DynamixelDevice::transaction(uint8_t aInstruction, uint8_t aLenght, uint8_t
 	if( (mStatusReturnLevel>1 || (mStatusReturnLevel>0 && mPacket.mInstruction==DYN_READ) || mPacket.mInstruction==DYN_PING) && mPacket.mID!=BROADCAST_ID)
 	{
 		mInterface.receivePacket(mPacket);
+	}
+	else if(mPacket.mInstruction==DYN_PING || mPacket.mInstruction==DYN_READ)
+	{
+		mPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_INVALID_OPERATION;
 	}
 }
 

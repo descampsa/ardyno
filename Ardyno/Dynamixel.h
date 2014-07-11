@@ -112,6 +112,11 @@ enum DynInstruction
  * case, it means there was an error in the checksum of the 
  * instruction packet, in second case in the response packet.
  *
+ * DYN_STATUS_INVALID_OPERATION is returned if the operation asked
+ * can not succeed, for example a ping on broadcast address. Not that
+ * in this case, the operation will still be performed (the instruction
+ * packet will be sent)
+ *
 */
 enum DynStatus
 {
@@ -126,6 +131,7 @@ enum DynStatus
 	DYN_STATUS_INSTRUCTION_ERROR	= 64,
 	
 	DYN_STATUS_TIMEOUT				=1,
+	DYN_STATUS_INVALID_OPERATION	=2,
 	
 	DYN_STATUS_COM_ERROR	= 128
 };
@@ -217,6 +223,13 @@ class DynamixelDevice
 		return mID;
 	}
 	
+	/**
+	 * \brief Check the connection with the device, and init the status return level
+	 *
+	 * You sould allways call this function first after object construction, 
+	 * and check its result. The only exception is broadcast objects.
+	 * 
+	**/
 	DynamixelStatus init();
 	
 	private:
