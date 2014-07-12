@@ -122,16 +122,6 @@ DynamixelStatus DynamixelDevice::reset()
 	return mPacket.mStatus;
 }
 
-DynamixelStatus DynamixelDevice::setStatusReturnLevel(uint8_t aSRL)
-{
-	write(DYN_ADDRESS_SRL, aSRL);
-	if(mPacket.mStatus==DYN_STATUS_OK)
-	{
-		mStatusReturnLevel=aSRL;
-	}
-	return mPacket.mStatus;
-}
-
 DynamixelStatus DynamixelDevice::init()
 {
 	DynamixelStatus status=ping();

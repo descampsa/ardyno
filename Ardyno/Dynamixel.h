@@ -218,22 +218,44 @@ class DynamixelDevice
 	template<class T>
 	inline DynamixelStatus regWrite(uint8_t aAddress, const T& aData);
 	
-	DynamixelID id()const
-	{
-		return mID;
-	}
 	
-	DynamixelStatus status()const
+	DynamixelStatus status()
 	{
 		return mPacket.mStatus;
 	}
 	
-	uint8_t statusReturnLevel()const
+	uint16_t model()
+	{
+		uint16_t result;
+		read(DYN_ADDRESS_ID, result);
+		return result;
+	}
+	
+	uint8_t firmware()
+	{
+		uint8_t result;
+		read(DYN_ADDRESS_FIRMWARE, result);
+		return result;
+	}
+	
+	DynamixelID id()
+	{
+		return mID;
+	}
+	
+	uint8_t statusReturnLevel()
 	{
 		return mStatusReturnLevel;
 	}
 	
-	DynamixelStatus setStatusReturnLevel(uint8_t aSRL);
+	void statusReturnLevel(uint8_t aSRL)
+	{
+		write(DYN_ADDRESS_SRL, aSRL);
+		if(status()==DYN_STATUS_OK)
+		{
+			mStatusReturnLevel=aSRL;
+		}
+	}
 	
 	private:
 	
