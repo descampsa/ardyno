@@ -113,9 +113,9 @@ enum DynInstruction
  * instruction packet, in second case in the response packet.
  *
  * DYN_STATUS_INVALID_OPERATION is returned if the operation asked
- * can not succeed, for example a ping on broadcast address. Not that
- * in this case, the operation will still be performed (the instruction
- * packet will be sent)
+ * can not succeed, for example a ping on broadcast address. Note that
+ * in this case, the operation will not be performed at all (the instruction
+ * packet will NOT be sent)
  *
 */
 enum DynStatus
@@ -223,22 +223,29 @@ class DynamixelDevice
 		return mID;
 	}
 	
-	/**
-	 * \brief Check the connection with the device, and init the status return level
-	 *
-	 * You sould allways call this function first after object construction, 
-	 * and check its result. The only exception is broadcast objects.
-	 * 
-	**/
-	DynamixelStatus init();
+	DynamixelStatus status()const
+	{
+		return mPacket.mStatus;
+	}
+	
+	uint8_t statusReturnLevel()const
+	{
+		return mStatusReturnLevel;
+	}
+	
+	DynamixelStatus setStatusReturnLevel(uint8_t aSRL);
 	
 	private:
+	
+	DynamixelStatus init();
 	
 	void transaction(uint8_t aInstruction, uint8_t aLenght, uint8_t *aData);
 	
 	DynamixelInterface &mInterface;
 	DynamixelID mID;
 	uint8_t mStatusReturnLevel;
+	
+	DynamixelStatus mStatus;
 	
 	DynamixelPacket mPacket;
 	
