@@ -19,6 +19,8 @@ DynamixelDevice::DynamixelDevice(DynamixelInterface &aInterface, DynamixelID aID
 	mInterface(aInterface), mID(aID), mStatusReturnLevel(255)
 {
 	mPacket.mStatus=DYN_STATUS_OK;
+	if(mID==BROADCAST_ID)
+		mStatusReturnLevel=0;
 }
 
 uint8_t DynamixelDevice::statusReturnLevel()
@@ -114,12 +116,7 @@ uint8_t DynamixelDevice::sInternalBuffer[]={0};
 
 void DynamixelDevice::transaction(uint8_t aInstruction, uint8_t aLenght, uint8_t *aData)
 {
-	if(mStatusReturnLevel==255)
-	{
-		init();
-	}
 	bool response_expected=(mStatusReturnLevel>1 || (mStatusReturnLevel>0 && mPacket.mInstruction==DYN_READ) || mPacket.mInstruction==DYN_PING);
-	response_expected &= mID!=BROADCAST_ID;
 	
 	mPacket.mID=mID;
 	mPacket.mInstruction=aInstruction;
