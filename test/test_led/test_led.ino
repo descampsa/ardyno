@@ -1,13 +1,11 @@
-#include <StreamController.h>
 #include <Dynamixel.h>
 
-SerialController Controller;
-DynamixelInterface Dynamixel(Serial, Controller);
-DynamixelDevice device(Dynamixel, BROADCAST_ID);
+DynamixelInterface &interface=*createSerialInterface(Serial);
+DynamixelDevice device(interface, BROADCAST_ID);
 uint8_t on=true;
 
 void setup() {
-  Serial.begin(1000000);
+  interface.begin(1000000);
   delay(100);
 }
 
