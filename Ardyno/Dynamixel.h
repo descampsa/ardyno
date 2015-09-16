@@ -7,7 +7,6 @@
 #define DYNAMIXEL_H
 
 #include <Arduino.h>
-#include "StreamController.h"
 
 /** \brief Type of dynamixel device ID */
 typedef uint8_t DynamixelID;
@@ -19,69 +18,6 @@ typedef uint8_t DynamixelInstruction;
 /** \brief ID for broadcast */
 #define BROADCAST_ID 0xFE
 
-/**
- * \struct DynamixelPacket
- * \brief Struct of a dynamixel packet (instruction or status)
-*/
-struct DynamixelPacket
-{
-	/** \brief Packet ID */
-	DynamixelID mID;
-	/** \brief Packet lenght (2 + parameter size) */
-	uint8_t mLenght;
-	/** \brief Packet instruction or status */
-	union{
-		DynamixelInstruction mInstruction;
-		DynamixelStatus mStatus;
-	};
-	/** \brief Pointer to packet parameter (or NULL if no parameter) */
-	uint8_t *mData;
-	/** \brief Packet checksum */
-	uint8_t mCheckSum;
-	
-	/**
-	 * \brief Compute checksum of the packet
-	 * \return Checksum value
-	*/
-	uint8_t checkSum();
-};
-
-/**
- * \class  DynamixelInterface
- * \brief Represent a dynamixel bus
-*/
-class DynamixelInterface
-{
-	public:
-	
-	/**
-	 * \brief Constructor
-	 * \param[in] aStream : underlying stream (e.g. HardwareSerial or SoftSerial)
-	 * \param[in] aStreamController : stream controller related to stream
-	*/
-	DynamixelInterface(Stream &aStream, StreamController &aStreamController);
-	
-	/**
-	 * \brief Send a packet on bus
-	 * \param[in] aPacket : Packet to send
-	 *
-	 * The function wait for the packet to be completly sent (using Stream.flush)
-	*/
-	void sendPacket(const DynamixelPacket &aPacket);
-	/**
-	 * \brief Receive a packet on bus
-	 * \param[out] aPacket : Received packet. mData field must be previously allocated
-	 *
-	 * The function wait for a new packet on the bus. Timeout depends of timeout of the underlying stream.
-	 * Return error code in case of communication error (timeout, checksum error, ...)
-	*/
-	void receivePacket(DynamixelPacket &aPacket);
-	
-	private:
-	
-	Stream &mStream;
-	StreamController &mStreamController;
-};
 
 /**
  * \brief Dynamixel intruction values
@@ -135,6 +71,48 @@ enum DynStatus
 	
 	DYN_STATUS_COM_ERROR	= 128
 };
+
+
+/**
+ * \struct DynamixelPacket
+ * \brief Struct of a dynamixel packet (instruction or status)
+*/
+struct DynamixelPacket
+{
+	/** \brief Packet ID */
+	DynamixelID mID;
+	/** \brief Packet lenght (2 + parameter size) */
+	uint8_t mLenght;
+	/** \brief Packet instruction or status */
+	union{
+		DynamixelInstruction mInstruction;
+		DynamixelStatus mStatus;
+	};
+	/** \brief Pointer to packet parameter (or NULL if no parameter) */
+	uint8_t *mData;
+	/** \brief Packet checksum */
+	uint8_t mCheckSum;
+	
+	/**
+	 * \brief Compute checksum of the packet
+	 * \return Checksum value
+	*/
+	uint8_t checkSum();
+};
+
+/**
+ * \class  DynamixelInterface
+ * \brief Represent a dynamixel bus
+*/
+class DynamixelInterface
+{
+	public:
+	virtual void begin(unsigned long aBaud)=0;
+	virtual void sendPacket(const DynamixelPacket &aPacket)=0;
+	virtual void receivePacket(DynamixelPacket &aPacket)=0;
+};
+
+DynamixelInterface *createSerialInterface(HardwareSerial &aSerial);
 
 /**
  * \brief Dynamixel control table addresses (only addresses used by all models)
@@ -199,14 +177,26 @@ class DynamixelDevice
 	public:
 	
 	DynamixelDevice(DynamixelInterface &aInterface, DynamixelID aId);
-
+	
+	DynamixelStatus init();
+	
+	DynamixelStatus status()
+	{
+		return mPacket.mStatus;
+	}
+	
+	DynamixelID id()
+	{
+		return mID;
+	}
+	
+	uint8_t statusReturnLevel();
+	
+	void statusReturnLevel(uint8_t aSRL);
+	uint16_t model();
+	uint8_t firmware();
+	
 	DynamixelStatus ping();
-	// warning : array pointed by aPtr must be at least two bytes long
-	DynamixelStatus read(uint8_t aAddress, uint8_t aSize, uint8_t *aPtr);
-	// warning : one byte must be allocated before aPtr
-	DynamixelStatus write(uint8_t aAddress, uint8_t aSize, uint8_t *aPtr);
-	// warning : one byte must be allocated before aPtr
-	DynamixelStatus regWrite(uint8_t aAddress, uint8_t aSize, uint8_t *aPtr);
 	DynamixelStatus action();
 	DynamixelStatus reset();
 	
@@ -218,48 +208,14 @@ class DynamixelDevice
 	template<class T>
 	inline DynamixelStatus regWrite(uint8_t aAddress, const T& aData);
 	
-	
-	DynamixelStatus status()
-	{
-		return mPacket.mStatus;
-	}
-	
-	uint16_t model()
-	{
-		uint16_t result;
-		read(DYN_ADDRESS_ID, result);
-		return result;
-	}
-	
-	uint8_t firmware()
-	{
-		uint8_t result;
-		read(DYN_ADDRESS_FIRMWARE, result);
-		return result;
-	}
-	
-	DynamixelID id()
-	{
-		return mID;
-	}
-	
-	uint8_t statusReturnLevel()
-	{
-		return mStatusReturnLevel;
-	}
-	
-	void statusReturnLevel(uint8_t aSRL)
-	{
-		write(DYN_ADDRESS_SRL, aSRL);
-		if(status()==DYN_STATUS_OK)
-		{
-			mStatusReturnLevel=aSRL;
-		}
-	}
+	// warning : array pointed by aPtr must be at least two bytes long
+	DynamixelStatus read(uint8_t aAddress, uint8_t aSize, uint8_t *aPtr);
+	// warning : one byte must be allocated before aPtr
+	DynamixelStatus write(uint8_t aAddress, uint8_t aSize, uint8_t *aPtr);
+	// warning : one byte must be allocated before aPtr
+	DynamixelStatus regWrite(uint8_t aAddress, uint8_t aSize, uint8_t *aPtr);
 	
 	private:
-	
-	DynamixelStatus init();
 	
 	void transaction(uint8_t aInstruction, uint8_t aLenght, uint8_t *aData);
 	
@@ -267,7 +223,6 @@ class DynamixelDevice
 	DynamixelID mID;
 	uint8_t mStatusReturnLevel;
 	
-	DynamixelStatus mStatus;
 	
 	DynamixelPacket mPacket;
 	

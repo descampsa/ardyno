@@ -15,70 +15,42 @@ uint8_t DynamixelPacket::checkSum()
 }
 
 
-DynamixelInterface::DynamixelInterface(Stream &aStream, StreamController &aStreamController):
-	mStream(aStream), mStreamController(aStreamController)
-{
-	mStreamController.readMode();
-	mStream.setTimeout(1); // return delay time is never more than 1 millisecond
-}
-
-void DynamixelInterface::sendPacket(const DynamixelPacket &aPacket)
-{
-	mStreamController.writeMode();
-	
-	mStream.write(0xFF);
-	mStream.write(0xFF);
-	mStream.write(aPacket.mID);
-	mStream.write(aPacket.mLenght);
-	mStream.write(aPacket.mInstruction);
-	if(aPacket.mLenght>2)
-	{
-		mStream.write(aPacket.mData, aPacket.mLenght-2);
-	}
-	mStream.write(aPacket.mCheckSum);
-	mStream.flush();
-	
-	mStreamController.readMode();
-}
-
-void DynamixelInterface::receivePacket(DynamixelPacket &aPacket)
-{
-	static char header[2];
-	if(mStream.readBytes(header,2)<2)
-	{
-		aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
-		return;
-	}
-	if(mStream.readBytes(reinterpret_cast<char*>(&aPacket), 3)<3)
-	{
-		aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
-		return;
-	}
-	if(mStream.readBytes(reinterpret_cast<char*>(aPacket.mData), aPacket.mLenght-2)<(aPacket.mLenght-2))
-	{
-		aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
-		return;
-	}
-	if(mStream.readBytes(reinterpret_cast<char*>(&(aPacket.mCheckSum)),1)<1)
-	{
-		aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
-		return;
-	}
-	if(aPacket.checkSum()!=aPacket.mCheckSum)
-	{
-		aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_CHECKSUM_ERROR;
-	}
-}
-
-
 DynamixelDevice::DynamixelDevice(DynamixelInterface &aInterface, DynamixelID aID):
-	mInterface(aInterface), mID(aID), mStatusReturnLevel(2)
+	mInterface(aInterface), mID(aID), mStatusReturnLevel(255)
 {
 	mPacket.mStatus=DYN_STATUS_OK;
-	if(mID!=BROADCAST_ID)
+}
+
+uint8_t DynamixelDevice::statusReturnLevel()
+{
+	if(mStatusReturnLevel==255)
 	{
 		init();
 	}
+	return mStatusReturnLevel;
+}
+
+void DynamixelDevice::statusReturnLevel(uint8_t aSRL)
+{
+	write(DYN_ADDRESS_SRL, aSRL);
+	if(status()==DYN_STATUS_OK)
+	{
+		mStatusReturnLevel=aSRL;
+	}
+}
+
+uint16_t DynamixelDevice::model()
+{
+	uint16_t result;
+	read(DYN_ADDRESS_ID, result);
+	return result;
+}
+
+uint8_t DynamixelDevice::firmware()
+{
+	uint8_t result;
+	read(DYN_ADDRESS_FIRMWARE, result);
+	return result;
 }
 
 DynamixelStatus DynamixelDevice::ping()
@@ -124,6 +96,7 @@ DynamixelStatus DynamixelDevice::reset()
 
 DynamixelStatus DynamixelDevice::init()
 {
+	mStatusReturnLevel=2;
 	DynamixelStatus status=ping();
 	if(status!=DYN_STATUS_OK)
 	{
@@ -141,28 +114,28 @@ uint8_t DynamixelDevice::sInternalBuffer[]={0};
 
 void DynamixelDevice::transaction(uint8_t aInstruction, uint8_t aLenght, uint8_t *aData)
 {
-	bool response_expected=(mStatusReturnLevel>1 || (mStatusReturnLevel>0 && mPacket.mInstruction==DYN_READ) || mPacket.mInstruction==DYN_PING) && 
-							mPacket.mID!=BROADCAST_ID;
-	if(response_expected || (mPacket.mInstruction=!DYN_PING && mPacket.mInstruction!=DYN_READ) )
+	if(mStatusReturnLevel==255)
 	{
-		mPacket.mID=mID;
-		mPacket.mInstruction=aInstruction;
-		mPacket.mLenght=aLenght+2;
-		mPacket.mData=aData;
-		mPacket.mCheckSum=mPacket.checkSum();
-		mInterface.sendPacket(mPacket);
-		if(response_expected)
-		{
-			mInterface.receivePacket(mPacket);
-		}
-		else
-		{
-			mPacket.mStatus=DYN_STATUS_OK;
-		}
+		init();
+	}
+	bool response_expected=(mStatusReturnLevel>1 || (mStatusReturnLevel>0 && mPacket.mInstruction==DYN_READ) || mPacket.mInstruction==DYN_PING);
+	response_expected &= mID!=BROADCAST_ID;
+	
+	mPacket.mID=mID;
+	mPacket.mInstruction=aInstruction;
+	mPacket.mLenght=aLenght+2;
+	mPacket.mData=aData;
+	mPacket.mCheckSum=mPacket.checkSum();
+	mInterface.sendPacket(mPacket);
+	if(response_expected)
+	{
+		mInterface.receivePacket(mPacket);
 	}
 	else
 	{
-		mPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_INVALID_OPERATION;
+		mPacket.mStatus=DYN_STATUS_OK;
 	}
 }
+
+
 
