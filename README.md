@@ -5,12 +5,11 @@ Arduino library for dynamixel servos
 
 This library allows you to control dynamixel devices with an arduino.
 It uses the hardware uart of arduino to communicate at 1000000 Bd.
-It should also be possible to use the softserial library,  but probably not at 1000000 Bd.
 
 See the test_led program for an example of how to use it.
 
-It has only been tested with Arduino Uno (should work with other versions with a few adaptations), and with no more than two devices connected on the bus. Also see warning below.
-Obviously, only TTL devices may be controlled without additionnal hardware, for RS485 devices, you will need an adaptator.
+It has only been tested with Arduino Uno (should work with other versions with a few adaptations). Also see warning below.
+Obviously, only TTL devices may be controlled without additionnal hardware, for RS485 devices, an adaptator would be needed.
 
 #Installation
 
@@ -18,11 +17,11 @@ Copy the Ardyno directory in your sketchbook/libraries directory.
 
 #Usage
 
-Simply connect tx and rx pins of the arduino to the data pin of your dynamixel device.
+You can use a 9V or 12V power supply to power the arduino and motors.
+Connect GND and VIN pins of the adruino and dynamixel device, and tx and rx pins of the arduino to the data pin of your dynamixel device.
 
 Warning : 
-The dynamixel uses a half duplex connection. 
+The dynamixel uses a half duplex connection (RS485-like).
 For now, the switch between rx and tx mode is done by software, by disabling rx pin when is in tx mode, and vice versa.
-This is not safe and far from optimal, but it allows to use it without additional hardware. Use only at you own risk and if you understand what you are doing.
-A proper version, with a tristate buffer interface is planned soon.
-
+This is probably not optimal, but it allows to use it without additional hardware and does not seem to cause any problem.
+Use it at you own risk.
