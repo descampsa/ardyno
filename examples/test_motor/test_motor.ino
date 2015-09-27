@@ -4,6 +4,8 @@
 const uint8_t id=2;
 int16_t speed=256;
 DynamixelInterface &interface=*createSerialInterface(Serial);
+// Use this if you use a direction pin with 3-state buffer
+//DynamixelInterface &interface=*createSerialInterface(Serial, 2);
 DynamixelMotor motor(interface, id);
 
 void setup()

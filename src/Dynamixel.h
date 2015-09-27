@@ -112,7 +112,10 @@ class DynamixelInterface
 	virtual void receivePacket(DynamixelPacket &aPacket)=0;
 };
 
+/** \brief Create dynamixel interface from hardware uart */
 DynamixelInterface *createSerialInterface(HardwareSerial &aSerial);
+/** \brief Create dynamixel interface from hardware uart with direction port connected to a 3-state buffer */
+DynamixelInterface *createSerialInterface(HardwareSerial &aSerial, uint8_t aDirectionPort);
 
 /**
  * \brief Dynamixel control table addresses (only addresses used by all models)

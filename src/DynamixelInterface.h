@@ -19,10 +19,30 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 {
 	private:
 	/** \brief Switch stream to read (receive)) mode */
-	void readMode(){setReadMode(mStream);}
+	void readMode()
+	{
+		if(mDirectionPort==NO_DIR_PORT)
+		{
+			digitalWrite(mDirectionPort, LOW);
+		}
+		else
+		{
+			setReadMode(mStream);
+		}
+	}
 	
 	/** \brief Switch stream to write (send) mode */
-	void writeMode(){setWriteMode(mStream);}
+	void writeMode()
+	{
+		if(mDirectionPort==NO_DIR_PORT)
+		{
+			digitalWrite(mDirectionPort, HIGH);
+		}
+		else
+		{
+			setWriteMode(mStream);
+		}
+	}
 	
 	public:
 	
@@ -30,8 +50,15 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 	 * \brief Constructor
 	 * \param[in] aStreamController : stream controller that abstract real stream
 	*/
-	DynamixelInterfaceImpl(T &aStream):mStream(aStream)
-	{}
+	DynamixelInterfaceImpl(T &aStream, uint8_t aDirectionPort=NO_DIR_PORT):
+		mStream(aStream), mDirectionPort(aDirectionPort)
+	{
+		if(mDirectionPort!=NO_DIR_PORT)
+		{
+			digitalWrite(mDirectionPort, LOW);
+			pinMode(mDirectionPort, OUTPUT);
+		}
+	}
 	
 	/**
 	 * \brief Start interface
@@ -111,6 +138,9 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 	private:
 	
 	T &mStream;
+	const uint8_t mDirectionPort;
+	
+	static const uint8_t NO_DIR_PORT=255;
 };
 
 #endif

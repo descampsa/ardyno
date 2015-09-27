@@ -7,6 +7,11 @@ DynamixelInterface *createSerialInterface(HardwareSerial &aSerial)
 	return new DynamixelInterfaceImpl<HardwareSerial>(aSerial);
 }
 
+DynamixelInterface *createSerialInterface(HardwareSerial &aSerial, uint8_t aDirectionPort)
+{
+	return new DynamixelInterfaceImpl<HardwareSerial>(aSerial, aDirectionPort);
+}
+
 namespace {
 //dirty trick to access protected member
 class HardwareSerialAccess:public HardwareSerial
