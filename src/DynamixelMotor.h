@@ -15,7 +15,7 @@ enum DynMotorAddress
 {
 	/** \brief Clockwise angle limit, uint16_t , writable */
 	DYN_ADDRESS_CW_LIMIT		=0x06,
-	/** \brief Counter clockwise angle limit, uint16_t , writable */
+	/** \brief Counnter clockwise angle limit, uint16_t , writable */
 	DYN_ADDRESS_CCW_LIMIT		=0x08,
 	/** \brief Maximum torque, uint16_t , writable */
 	DYN_ADDRESS_MAX_TORQUE		=0x0E,

@@ -199,10 +199,12 @@ class DynamixelDevice
 	}
 	
 	uint8_t statusReturnLevel();
-	
 	void statusReturnLevel(uint8_t aSRL);
+	
 	uint16_t model();
 	uint8_t firmware();
+	
+	void communicationSpeed(uint16_t aSpeed);
 	
 	DynamixelStatus ping();
 	DynamixelStatus action();
