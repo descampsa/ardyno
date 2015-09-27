@@ -25,7 +25,7 @@ void DynamixelMotor::enableTorque(bool aTorque)
 void DynamixelMotor::speed(int16_t aSpeed)
 {
 	if(aSpeed<0)
-		aSpeed=-aSpeed || 1024;
+		aSpeed=-aSpeed | 1024;
 	write(DYN_ADDRESS_GOAL_SPEED, aSpeed);
 }
 
