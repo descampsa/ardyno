@@ -21,9 +21,9 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 	/** \brief Switch stream to read (receive)) mode */
 	void readMode()
 	{
-		if(mDirectionPort==NO_DIR_PORT)
+		if(mDirectionPin==NO_DIR_PORT)
 		{
-			digitalWrite(mDirectionPort, LOW);
+			digitalWrite(mDirectionPin, LOW);
 		}
 		else
 		{
@@ -34,9 +34,9 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 	/** \brief Switch stream to write (send) mode */
 	void writeMode()
 	{
-		if(mDirectionPort==NO_DIR_PORT)
+		if(mDirectionPin==NO_DIR_PORT)
 		{
-			digitalWrite(mDirectionPort, HIGH);
+			digitalWrite(mDirectionPin, HIGH);
 		}
 		else
 		{
@@ -49,15 +49,27 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 	/**
 	 * \brief Constructor
 	 * \param[in] aStreamController : stream controller that abstract real stream
+	 * \param[in] aDirectionPin : direction pin, use NO_DIR_PORT if you do not one (default)
+	 * \param[in] aTranferOwnership : if true, the stream will be deleted in the destructor
 	*/
-	DynamixelInterfaceImpl(T &aStream, uint8_t aDirectionPort=NO_DIR_PORT):
-		mStream(aStream), mDirectionPort(aDirectionPort)
+	DynamixelInterfaceImpl(T &aStream, uint8_t aDirectionPin=NO_DIR_PORT, bool aTranferOwnership=false):
+		mStream(aStream), mDirectionPin(aDirectionPin), mStreamOwner(aTranferOwnership)
 	{
-		if(mDirectionPort!=NO_DIR_PORT)
+		if(mDirectionPin!=NO_DIR_PORT)
 		{
-			digitalWrite(mDirectionPort, LOW);
-			pinMode(mDirectionPort, OUTPUT);
+			digitalWrite(mDirectionPin, LOW);
+			pinMode(mDirectionPin, OUTPUT);
 		}
+	}
+	
+	/**
+	 * \brief Destructor
+	 * Delete stream if it is owned by the instance
+	 */
+	~DynamixelInterfaceImpl()
+	{
+		if(mStreamOwner)
+			delete &mStream;
 	}
 	
 	/**
@@ -135,12 +147,13 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 		}
 	}
 	
+	static const uint8_t NO_DIR_PORT=255;
+	
 	private:
 	
 	T &mStream;
-	const uint8_t mDirectionPort;
-	
-	static const uint8_t NO_DIR_PORT=255;
+	const uint8_t mDirectionPin;
+	bool mStreamOwner;
 };
 
 #endif

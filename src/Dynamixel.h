@@ -115,7 +115,12 @@ class DynamixelInterface
 /** \brief Create dynamixel interface from hardware uart */
 DynamixelInterface *createSerialInterface(HardwareSerial &aSerial);
 /** \brief Create dynamixel interface from hardware uart with direction port connected to a 3-state buffer */
-DynamixelInterface *createSerialInterface(HardwareSerial &aSerial, uint8_t aDirectionPort);
+DynamixelInterface *createSerialInterface(HardwareSerial &aSerial, uint8_t aDirectionPin);
+/** \brief Create dynamixel interface from software uart (need SoftwareSerial) */
+DynamixelInterface *createSoftSerialInterface(uint8_t aRxPin, uint8_t aTxPin);
+/** \brief Create dynamixel interface from software uart with direction port connected to a 3-state buffer (need SoftwareSerial) */
+DynamixelInterface *createSoftSerialInterface(uint8_t aRxPin, uint8_t aTxPin, uint8_t aDirectionPin);
+
 
 /**
  * \brief Dynamixel control table addresses (only addresses used by all models)
