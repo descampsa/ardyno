@@ -55,7 +55,7 @@ uint8_t DynamixelDevice::firmware()
 	return result;
 }
 
-void DynamixelDevice::communicationSpeed(uint16_t aSpeed)
+void DynamixelDevice::communicationSpeed(uint32_t aSpeed)
 {
 	uint8_t value=2000000/aSpeed-1;
 	write(DYN_ADDRESS_BAUDRATE, value);

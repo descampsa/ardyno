@@ -204,7 +204,7 @@ class DynamixelDevice
 	uint16_t model();
 	uint8_t firmware();
 	
-	void communicationSpeed(uint16_t aSpeed);
+	void communicationSpeed(uint32_t aSpeed);
 	
 	DynamixelStatus ping();
 	DynamixelStatus action();
