@@ -58,7 +58,10 @@ uint8_t DynamixelDevice::firmware()
 void DynamixelDevice::communicationSpeed(uint32_t aSpeed)
 {
 	uint8_t value=2000000/aSpeed-1;
-	write(DYN_ADDRESS_BAUDRATE, value);
+	if(value!=0) // forbid 2MBd rate, because it is out of spec, and can be difficult to undo
+	{
+		write(DYN_ADDRESS_BAUDRATE, value);
+	}
 }
 
 DynamixelStatus DynamixelDevice::ping()
