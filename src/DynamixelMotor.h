@@ -22,6 +22,8 @@ enum DynMotorAddress
 	
 	/** \brief Enable torque, uint8_t , writable */
 	DYN_ADDRESS_ENABLE_TORQUE		=0x18,
+	/** \brief LED state, uint8_t , writable */
+	DYN_ADDRESS_LED					=0x19,
 	/** \brief Goal position, uint16_t , writable */
 	DYN_ADDRESS_GOAL_POSITION		=0x1E,
 	/** \brief Goal speed, uint16_t , writable */
@@ -40,6 +42,8 @@ class DynamixelMotor:public DynamixelDevice
 	void enableTorque(bool aTorque=true);
 	void speed(int16_t aSpeed);
 	void position(uint16_t aPosition);
+	
+	void led(uint8_t aState);
 };
 
 #endif

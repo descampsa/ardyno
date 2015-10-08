@@ -33,3 +33,9 @@ void DynamixelMotor::position(uint16_t aPosition)
 {
 	write(DYN_ADDRESS_GOAL_POSITION, aPosition);
 }
+
+void DynamixelMotor::led(uint8_t aState)
+{
+	write(DYN_ADDRESS_LED, aState);
+}
+
