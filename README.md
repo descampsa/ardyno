@@ -3,25 +3,20 @@ ardyno
 
 Arduino library for dynamixel servos
 
-This library allows you to control dynamixel devices with an arduino.
-It uses the hardware uart of arduino to communicate at 1000000 Bd.
-
-See the test_led program for an example of how to use it.
-
-It has only been tested with Arduino Uno (should work with other versions with a few adaptations). Also see warning below.
-Obviously, only TTL devices may be controlled without additionnal hardware, for RS485 devices, an adaptator would be needed.
+This library allows you to control the Robotis servo motors that use a custom half-duplex serial protocol. 
+You can control TTL models directly from Arduino, without any additional hardware, using hardware or software UART.
+Communication speed up to 1 MBd is supported with hardware serial.
+The most useful functions (speed, position, wheel/joint mode, ...) are provided via a very simple high level interface (see test_motor example), but other operations can be done using the generic read/write functions (see test_led example).
 
 #Installation
 
-Copy the Ardyno directory in your sketchbook/libraries directory.
+Ardyno is available in the Arduino Library Manager, or you can get it directly from github repository if you want last version (may be unstable)
 
 #Usage
 
+To control TTL motors, without any additionnal hardware:
 You can use a 9V or 12V power supply to power the arduino and motors.
 Connect GND and VIN pins of the adruino and dynamixel device, and tx and rx pins of the arduino to the data pin of your dynamixel device.
 
-Warning : 
-The dynamixel uses a half duplex connection (RS485-like).
-For now, the switch between rx and tx mode is done by software, by disabling rx pin when is in tx mode, and vice versa.
-This is probably not optimal, but it allows to use it without additional hardware and does not seem to cause any problem.
-Use it at you own risk.
+To control TTL/RS485 motors, with an additionnal hardware buffer:
+See Robotis documentation
