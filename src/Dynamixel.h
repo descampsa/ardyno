@@ -100,6 +100,9 @@ struct DynamixelPacket
 	uint8_t checkSum();
 };
 
+#ifndef DYN_INTERNAL_BUFFER_SIZE
+#define DYN_INTERNAL_BUFFER_SIZE 32
+#endif
 /**
  * \class  DynamixelInterface
  * \brief Represent a dynamixel bus
@@ -110,6 +113,33 @@ class DynamixelInterface
 	virtual void begin(unsigned long aBaud)=0;
 	virtual void sendPacket(const DynamixelPacket &aPacket)=0;
 	virtual void receivePacket(DynamixelPacket &aPacket)=0;
+	
+	void transaction(uint8_t aID, uint8_t aInstruction, uint8_t aLenght, uint8_t *aData, bool aExpectStatus);
+	
+	//sizeof(T) must be lower than DYN_INTERNAL_BUFFER_SIZE, and in any case lower than 256
+	template<class T>
+	inline DynamixelStatus read(uint8_t aID, uint8_t aAddress, T& aData, uint8_t aStatusReturnLevel=2);
+	template<class T>
+	inline DynamixelStatus write(uint8_t aID, uint8_t aAddress, const T& aData, uint8_t aStatusReturnLevel=2);
+	template<class T>
+	inline DynamixelStatus regWrite(uint8_t aID, uint8_t aAddress, const T& aData, uint8_t aStatusReturnLevel=2);
+	
+	// warning : array pointed by aPtr must be at least two bytes long
+	DynamixelStatus read(uint8_t aID, uint8_t aAddress, uint8_t aSize, uint8_t *aPtr, uint8_t aStatusReturnLevel=2);
+	// warning : one byte must be allocated before aPtr
+	DynamixelStatus write(uint8_t aID, uint8_t aAddress, uint8_t aSize, uint8_t *aPtr, uint8_t aStatusReturnLevel=2);
+	// warning : one byte must be allocated before aPtr
+	DynamixelStatus regWrite(uint8_t aID, uint8_t aAddress, uint8_t aSize, uint8_t *aPtr, uint8_t aStatusReturnLevel=2);
+	
+	DynamixelStatus ping(uint8_t aID);
+	DynamixelStatus action(uint8_t aID=BROADCAST_ID, uint8_t aStatusReturnLevel=2);
+	DynamixelStatus reset(uint8_t aID, uint8_t aStatusReturnLevel=2);
+	
+	private:
+	
+	DynamixelPacket mPacket;
+	
+	uint8_t mInternalBuffer[DYN_INTERNAL_BUFFER_SIZE];
 };
 
 /** \brief Create dynamixel interface from hardware uart */
@@ -178,8 +208,6 @@ enum DynModel
 	DYN_MODEL_AXS1	=0x0D
 };
 
-#define DYN_INTERNAL_BUFFER_SIZE 32
-
 class DynamixelDevice
 {
 	public:
@@ -190,7 +218,7 @@ class DynamixelDevice
 	
 	DynamixelStatus status()
 	{
-		return mPacket.mStatus;
+		return mStatus;
 	}
 	
 	DynamixelID id()
@@ -206,57 +234,66 @@ class DynamixelDevice
 	
 	void communicationSpeed(uint32_t aSpeed);
 	
-	DynamixelStatus ping();
-	DynamixelStatus action();
-	DynamixelStatus reset();
 	
-	//sizeof(T) must be lower than DYN_INTERNAL_BUFFER_SIZE, and in any case lower than 256
 	template<class T>
-	inline DynamixelStatus read(uint8_t aAddress, T& aData);
-	template<class T>
-	inline DynamixelStatus write(uint8_t aAddress, const T& aData);
-	template<class T>
-	inline DynamixelStatus regWrite(uint8_t aAddress, const T& aData);
+	inline DynamixelStatus read(uint8_t aAddress, T& aData)
+	{
+		return mStatus=mInterface.read<T>(mID, aAddress, aData, mStatusReturnLevel);
+	}
 	
-	// warning : array pointed by aPtr must be at least two bytes long
-	DynamixelStatus read(uint8_t aAddress, uint8_t aSize, uint8_t *aPtr);
-	// warning : one byte must be allocated before aPtr
-	DynamixelStatus write(uint8_t aAddress, uint8_t aSize, uint8_t *aPtr);
-	// warning : one byte must be allocated before aPtr
-	DynamixelStatus regWrite(uint8_t aAddress, uint8_t aSize, uint8_t *aPtr);
+	template<class T>
+	inline DynamixelStatus write(uint8_t aAddress, const T& aData)
+	{
+		return mStatus=mInterface.write<T>(mID, aAddress, aData, mStatusReturnLevel);
+	}
+	
+	template<class T>
+	inline DynamixelStatus regWrite(uint8_t aAddress, const T& aData)
+	{
+		return mStatus=mInterface.regWrite<T>(mID, aAddress, aData, mStatusReturnLevel);
+	}
+	
+	DynamixelStatus ping()
+	{
+		return mStatus=mInterface.ping(mID);
+	}
+	
+	DynamixelStatus action()
+	{
+		return mStatus=mInterface.action(mID, mStatusReturnLevel);
+	}
+	
+	DynamixelStatus reset()
+	{
+		return mStatus=mInterface.reset(mID, mStatusReturnLevel);
+	}
 	
 	private:
-	
-	void transaction(uint8_t aInstruction, uint8_t aLenght, uint8_t *aData);
 	
 	DynamixelInterface &mInterface;
 	DynamixelID mID;
 	uint8_t mStatusReturnLevel;
-	
-	
-	DynamixelPacket mPacket;
-	
-	static uint8_t sInternalBuffer[DYN_INTERNAL_BUFFER_SIZE];
+	DynamixelStatus mStatus;
 };
 
 
 template<class T>
-DynamixelStatus DynamixelDevice::read(uint8_t aAddress, T& aData)
+DynamixelStatus DynamixelInterface::read(uint8_t aID, uint8_t aAddress, T& aData, uint8_t aStatusReturnLevel)
 {
-	read(aAddress, uint8_t(sizeof(T)), sInternalBuffer);
-	memcpy(&aData, sInternalBuffer, sizeof(T));
+	read(aID, aAddress, uint8_t(sizeof(T)), mInternalBuffer, aStatusReturnLevel);
+	memcpy(&aData, mInternalBuffer, sizeof(T));
 }
 template<class T>
-DynamixelStatus DynamixelDevice::write(uint8_t aAddress, const T& aData)
+DynamixelStatus DynamixelInterface::write(uint8_t aID, uint8_t aAddress, const T& aData, uint8_t aStatusReturnLevel)
 {
-	memcpy(sInternalBuffer+1, &aData, sizeof(T));
-	write(aAddress, uint8_t(sizeof(T)), sInternalBuffer+1);
+	memcpy(mInternalBuffer+1, &aData, sizeof(T));
+	write(aID, aAddress, uint8_t(sizeof(T)), mInternalBuffer+1, aStatusReturnLevel);
 }
 template<class T>
-DynamixelStatus DynamixelDevice::regWrite(uint8_t aAddress, const T& aData)
+DynamixelStatus DynamixelInterface::regWrite(uint8_t aID, uint8_t aAddress, const T& aData, uint8_t aStatusReturnLevel)
 {
-	memcpy(sInternalBuffer+1, &aData, sizeof(T));
-	regWrite(aAddress, uint8_t(sizeof(T)), sInternalBuffer+1);
+	memcpy(mInternalBuffer+1, &aData, sizeof(T));
+	regWrite(aID, aAddress, uint8_t(sizeof(T)), mInternalBuffer+1, aStatusReturnLevel);
 }
 
 #endif
