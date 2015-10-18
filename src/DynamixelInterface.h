@@ -21,7 +21,7 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 	/** \brief Switch stream to read (receive)) mode */
 	void readMode()
 	{
-		if(mDirectionPin==NO_DIR_PORT)
+		if(mDirectionPin!=NO_DIR_PORT)
 		{
 			digitalWrite(mDirectionPin, LOW);
 		}
@@ -34,7 +34,7 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 	/** \brief Switch stream to write (send) mode */
 	void writeMode()
 	{
-		if(mDirectionPin==NO_DIR_PORT)
+		if(mDirectionPin!=NO_DIR_PORT)
 		{
 			digitalWrite(mDirectionPin, HIGH);
 		}
