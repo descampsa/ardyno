@@ -48,10 +48,6 @@ enum DynInstruction
  * case, it means there was an error in the checksum of the 
  * instruction packet, in second case in the response packet.
  *
- * DYN_STATUS_INVALID_OPERATION is returned if the operation asked
- * can not succeed, for example a ping on broadcast address. Note that
- * in this case, the operation will not be performed at all (the instruction
- * packet will NOT be sent)
  *
 */
 enum DynStatus
@@ -67,9 +63,9 @@ enum DynStatus
 	DYN_STATUS_INSTRUCTION_ERROR	= 64,
 	
 	DYN_STATUS_TIMEOUT				=1,
-	DYN_STATUS_INVALID_OPERATION	=2,
 	
-	DYN_STATUS_COM_ERROR	= 128
+	DYN_STATUS_COM_ERROR			= 128,
+	DYN_STATUS_INTERNAL_ERROR		= 255
 };
 
 
