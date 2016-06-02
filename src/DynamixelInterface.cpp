@@ -2,6 +2,13 @@
 #include "DynamixelInterface.h"
 #include <../../libraries/SoftwareSerial/SoftwareSerial.h>
 
+// Some devices have uart1 but no uart0 (leonardo)
+#if !defined(TXEN0) && defined(TXEN1)
+#define TXEN0 TXEN1
+#define RXEN0 RXEN1
+#define RXCIE0 RXCIE1
+#endif
+
 DynamixelInterface *createSerialInterface(HardwareSerial &aSerial)
 {
 	return new DynamixelInterfaceImpl<HardwareSerial>(aSerial);
