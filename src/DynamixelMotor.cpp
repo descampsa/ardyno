@@ -39,3 +39,10 @@ void DynamixelMotor::led(uint8_t aState)
 	write(DYN_ADDRESS_LED, aState);
 }
 
+uint16_t DynamixelMotor::currentPosition()
+{
+	uint16_t currentPosition;
+	read(DYN_ADDRESS_CURRENT_POSITION, currentPosition);
+	return currentPosition;
+}
+

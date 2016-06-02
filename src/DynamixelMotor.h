@@ -28,6 +28,8 @@ enum DynMotorAddress
 	DYN_ADDRESS_GOAL_POSITION		=0x1E,
 	/** \brief Goal speed, uint16_t , writable */
 	DYN_ADDRESS_GOAL_SPEED		=0x20,
+	/** \brief Current position, uint16_t , readable */
+	DYN_ADDRESS_CURRENT_POSITION		=0x24,
 };
 
 class DynamixelMotor:public DynamixelDevice
@@ -44,6 +46,8 @@ class DynamixelMotor:public DynamixelDevice
 	void position(uint16_t aPosition);
 	
 	void led(uint8_t aState);
+
+	uint16_t currentPosition();
 };
 
 #endif
