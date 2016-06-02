@@ -1,6 +1,6 @@
 
 #include "DynamixelInterface.h"
-#include <../../libraries/SoftwareSerial/SoftwareSerial.h>
+#include <SoftwareSerial.h>
 
 DynamixelInterface *createSerialInterface(HardwareSerial &aSerial)
 {
