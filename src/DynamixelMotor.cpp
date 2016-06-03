@@ -29,7 +29,7 @@ void DynamixelMotor::speed(int16_t aSpeed)
 	write(DYN_ADDRESS_GOAL_SPEED, aSpeed);
 }
 
-void DynamixelMotor::position(uint16_t aPosition)
+void DynamixelMotor::goalPosition(uint16_t aPosition)
 {
 	write(DYN_ADDRESS_GOAL_POSITION, aPosition);
 }

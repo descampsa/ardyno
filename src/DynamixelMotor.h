@@ -43,7 +43,7 @@ class DynamixelMotor:public DynamixelDevice
 	
 	void enableTorque(bool aTorque=true);
 	void speed(int16_t aSpeed);
-	void position(uint16_t aPosition);
+	void goalPosition(uint16_t aPosition);
 	
 	void led(uint8_t aState);
 

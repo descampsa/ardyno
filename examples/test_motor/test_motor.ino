@@ -1,7 +1,7 @@
 //#include <SoftwareSerial.h>
 #include "DynamixelMotor.h"
 
-const uint8_t id=2;
+const uint8_t id=1;
 int16_t speed=256;
 
 DynamixelInterface &interface=*createSerialInterface(Serial);
@@ -24,7 +24,7 @@ void setup()
   // reset to middle position
   motor.jointMode();
   motor.speed(speed);
-  motor.position(0x1ff);
+  motor.goalPosition(0x1ff);
   delay(5000);
   motor.wheelMode();
 }
