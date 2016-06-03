@@ -2,6 +2,13 @@
 #include "DynamixelInterface.h"
 #include <SoftwareSerial.h>
 
+// Some devices have uart1 but no uart0 (leonardo)
+#if !defined(TXEN0) && defined(TXEN1)
+#define TXEN0 TXEN1
+#define RXEN0 RXEN1
+#define RXCIE0 RXCIE1
+#endif
+
 DynamixelInterface *createSerialInterface(HardwareSerial &aSerial)
 {
 	return new DynamixelInterfaceImpl<HardwareSerial>(aSerial);
@@ -64,6 +71,7 @@ void setWriteMode<HardwareSerial>(HardwareSerial &aStream)
 {
 	HardwareSerialAccess &stream=reinterpret_cast<HardwareSerialAccess&>(aStream);
 	*(stream.ucsrb()) &= !_BV(RXEN0);
+	*(stream.ucsrb()) &= !_BV(RXCIE0);
 	*(stream.ucsrb()) |= _BV(TXEN0);
 }
 
