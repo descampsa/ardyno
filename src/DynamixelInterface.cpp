@@ -2,6 +2,19 @@
 #include "DynamixelInterface.h"
 #include <SoftwareSerial.h>
 
+// define TXEN, RXEN and RXCIE
+#if !defined(TXEN)
+#if defined(TXEN0)
+#define TXEN TXEN0
+#define RXEN RXEN0
+#define RXCIE RXCIE0
+#elif defined(TXEN1) // Some devices have uart1 but no uart0 (leonardo)
+#define TXEN TXEN1
+#define RXEN RXEN1
+#define RXCIE RXCIE1
+#endif
+#endif
+
 DynamixelInterface *createSerialInterface(HardwareSerial &aSerial)
 {
 	return new DynamixelInterfaceImpl<HardwareSerial>(aSerial);
@@ -54,17 +67,17 @@ template<>
 void setReadMode<HardwareSerial>(HardwareSerial &aStream)
 {
 	HardwareSerialAccess &stream=reinterpret_cast<HardwareSerialAccess&>(aStream);
-	*(stream.ucsrb()) &= !_BV(TXEN0);
-	*(stream.ucsrb()) |= _BV(RXEN0);
-	*(stream.ucsrb()) |= _BV(RXCIE0);
+	*(stream.ucsrb()) &= !_BV(TXEN);
+	*(stream.ucsrb()) |= _BV(RXEN);
+	*(stream.ucsrb()) |= _BV(RXCIE);
 }
 
 template<>
 void setWriteMode<HardwareSerial>(HardwareSerial &aStream)
 {
 	HardwareSerialAccess &stream=reinterpret_cast<HardwareSerialAccess&>(aStream);
-	*(stream.ucsrb()) &= !_BV(RXEN0);
-	*(stream.ucsrb()) |= _BV(TXEN0);
+	*(stream.ucsrb()) &= !_BV(RXEN);
+	*(stream.ucsrb()) |= _BV(TXEN);
 }
 
 
