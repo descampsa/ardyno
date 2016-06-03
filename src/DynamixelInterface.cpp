@@ -77,6 +77,7 @@ void setWriteMode<HardwareSerial>(HardwareSerial &aStream)
 {
 	HardwareSerialAccess &stream=reinterpret_cast<HardwareSerialAccess&>(aStream);
 	*(stream.ucsrb()) &= !_BV(RXEN);
+	*(stream.ucsrb()) |= _BV(RXCIE);
 	*(stream.ucsrb()) |= _BV(TXEN);
 }
 
