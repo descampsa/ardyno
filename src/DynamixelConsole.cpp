@@ -198,7 +198,7 @@ DynamixelStatus DynamixelConsole::read(int argc, char **argv)
 	{
 		return DYN_STATUS_INTERNAL_ERROR;
 	}
-	uint8_t *ptr=new uint8_t[max(2,lenght)];
+	uint8_t *ptr=new uint8_t[lenght];
 	DynamixelStatus result=mInterface.read(id, addr, lenght, ptr);
 	printData(ptr,lenght); 
 	delete ptr;
@@ -221,16 +221,16 @@ DynamixelStatus DynamixelConsole::write(int argc, char **argv)
 	addr=atoi(argv[2]);
 	lenght=argc-3;
 	if(lenght>255)
-        {
-                return DYN_STATUS_INTERNAL_ERROR;
-        }
+	{
+		return DYN_STATUS_INTERNAL_ERROR;
+	}
 	
-	uint8_t *ptr=new uint8_t[lenght+1];
+	uint8_t *ptr=new uint8_t[lenght];
 	for(uint8_t i=0; i<lenght; ++i)
 	{
-		ptr[i+1]=atoi(argv[i+3]);
+		ptr[i]=atoi(argv[i+3]);
 	} 
-	DynamixelStatus result=mInterface.write(id, addr, lenght, ptr+1);
+	DynamixelStatus result=mInterface.write(id, addr, lenght, ptr);
 	delete ptr;
 	return result;
 }

@@ -7,9 +7,24 @@
 uint8_t DynamixelPacket::checkSum()
 {
 	uint8_t result=mID+mLenght+mInstruction;
-	for(int i=0; i<(mLenght-2); ++i)
+	int n=0;
+	if(mAddress!=255)
+	{
+		result+=mAddress;
+		++n;
+	}
+	if(mDataLenght!=255)
+	{
+		result+=mDataLenght;
+		++n;
+	}
+	for(int i=0; i<(mLenght-2-n); ++i)
 	{
 		result+=mData[i];
+	}
+	for(int i=0; i<mIDListSize; ++i)
+	{
+		result+=mIDList[i];
 	}
 	return ~result;
 }
@@ -81,15 +96,8 @@ DynamixelStatus DynamixelDevice::init()
 }
 
 
-void DynamixelInterface::transaction(uint8_t aID, uint8_t aInstruction, uint8_t aLenght, uint8_t *aData, bool aExpectStatus)
+void DynamixelInterface::transaction(bool aExpectStatus)
 {
-	//bool response_expected=(mStatusReturnLevel>1 || (mStatusReturnLevel>0 && mPacket.mInstruction==DYN_READ) || mPacket.mInstruction==DYN_PING);
-	
-	mPacket.mID=aID;
-	mPacket.mInstruction=aInstruction;
-	mPacket.mLenght=aLenght+2;
-	mPacket.mData=aData;
-	mPacket.mCheckSum=mPacket.checkSum();
 	sendPacket(mPacket);
 	if(aExpectStatus)
 	{
@@ -103,41 +111,50 @@ void DynamixelInterface::transaction(uint8_t aID, uint8_t aInstruction, uint8_t 
 
 DynamixelStatus DynamixelInterface::read(uint8_t aID, uint8_t aAddress, uint8_t aSize, uint8_t *aPtr, uint8_t aStatusReturnLevel)
 {
-	aPtr[0]=aAddress;
-	aPtr[1]=aSize;
-	transaction(aID, DYN_READ, 2, aPtr, aStatusReturnLevel>0 && aID!=BROADCAST_ID);
+	mPacket=DynamixelPacket(aID, DYN_READ, 4, aPtr, aAddress, aSize);
+	transaction(aStatusReturnLevel>0 && aID!=BROADCAST_ID);
 	return mPacket.mStatus;
 }
 
-DynamixelStatus DynamixelInterface::write(uint8_t aID, uint8_t aAddress, uint8_t aSize, uint8_t *aPtr, uint8_t aStatusReturnLevel)
+DynamixelStatus DynamixelInterface::write(uint8_t aID, uint8_t aAddress, uint8_t aSize, const uint8_t *aPtr, uint8_t aStatusReturnLevel)
 {
-	aPtr[-1]=aAddress;
-	transaction(aID, DYN_WRITE, aSize+1, const_cast<uint8_t*>(aPtr-1), aStatusReturnLevel>1 && aID!=BROADCAST_ID);
+	mPacket=DynamixelPacket(aID, DYN_WRITE, aSize+3, aPtr, aAddress);
+	transaction(aStatusReturnLevel>1 && aID!=BROADCAST_ID);
 	return mPacket.mStatus;
 }
 
-DynamixelStatus DynamixelInterface::regWrite(uint8_t aID, uint8_t aAddress, uint8_t aSize, uint8_t *aPtr, uint8_t aStatusReturnLevel)
+DynamixelStatus DynamixelInterface::regWrite(uint8_t aID, uint8_t aAddress, uint8_t aSize, const uint8_t *aPtr, uint8_t aStatusReturnLevel)
 {
-	aPtr[-1]=aAddress;
-	transaction(aID, DYN_REG_WRITE, aSize+1, const_cast<uint8_t*>(aPtr-1), aStatusReturnLevel>1 && aID!=BROADCAST_ID);
+	mPacket=DynamixelPacket(aID, DYN_REG_WRITE, aSize+3, aPtr, aAddress);
+	transaction(aStatusReturnLevel>1 && aID!=BROADCAST_ID);
+	return mPacket.mStatus;
+}
+
+DynamixelStatus DynamixelInterface::syncWrite(uint8_t nID, const uint8_t *aID, uint8_t aAddress, uint8_t aSize, const uint8_t *aPtr, uint8_t aStatusReturnLevel)
+{
+	mPacket=DynamixelPacket(BROADCAST_ID, DYN_SYNC_WRITE, (aSize+1)*nID+4, aPtr, aAddress, aSize, nID, aID);
+	transaction(false);
 	return mPacket.mStatus;
 }
 
 DynamixelStatus DynamixelInterface::ping(uint8_t aID)
 {
-	transaction(aID, DYN_PING, 0, NULL, true);
+	mPacket=DynamixelPacket(aID, DYN_PING, 2, NULL);
+	transaction(true);
 	return mPacket.mStatus;
 }
 
 DynamixelStatus DynamixelInterface::action(uint8_t aID, uint8_t aStatusReturnLevel)
 {
-	transaction(aID, DYN_ACTION, 0, NULL, aStatusReturnLevel>1 && aID!=BROADCAST_ID);
+	mPacket=DynamixelPacket(aID, DYN_ACTION, 2, NULL);
+	transaction(aStatusReturnLevel>1 && aID!=BROADCAST_ID);
 	return mPacket.mStatus;
 }
 
 DynamixelStatus DynamixelInterface::reset(uint8_t aID, uint8_t aStatusReturnLevel)
 {
-	transaction(aID, DYN_RESET, 0, NULL, aStatusReturnLevel>1 && aID!=BROADCAST_ID);
+	mPacket=DynamixelPacket(aID, DYN_RESET, 2, NULL);
+	transaction(aStatusReturnLevel>1 && aID!=BROADCAST_ID);
 	return mPacket.mStatus;
 }
 

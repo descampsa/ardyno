@@ -100,9 +100,33 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 		mStream.write(aPacket.mID);
 		mStream.write(aPacket.mLenght);
 		mStream.write(aPacket.mInstruction);
-		if(aPacket.mLenght>2)
+		uint8_t n=0;
+		if(aPacket.mAddress!=255)
 		{
-			mStream.write(aPacket.mData, aPacket.mLenght-2);
+			mStream.write(aPacket.mAddress);
+			++n;
+		}
+		if(aPacket.mDataLenght!=255)
+		{
+			mStream.write(aPacket.mDataLenght);
+			++n;
+		}
+		if(aPacket.mLenght>(2+n))
+		{
+			if(aPacket.mIDListSize==0)
+			{
+				mStream.write(aPacket.mData, aPacket.mLenght-2-n);
+			}
+			else
+			{
+				uint8_t *ptr=aPacket.mData;
+				for(uint8_t i=0; i<aPacket.mIDListSize; ++i)
+				{
+					mStream.write(aPacket.mIDList[i]);
+					mStream.write(ptr, aPacket.mDataLenght);
+					ptr+=aPacket.mDataLenght;
+				}
+			}
 		}
 		mStream.write(aPacket.mCheckSum);
 		mStream.flush();
