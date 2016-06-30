@@ -6,19 +6,19 @@
 
 uint8_t DynamixelPacket::checkSum()
 {
-	uint8_t result=mID+mLenght+mInstruction;
+	uint8_t result=mID+mLength+mInstruction;
 	int n=0;
 	if(mAddress!=255)
 	{
 		result+=mAddress;
 		++n;
 	}
-	if(mDataLenght!=255)
+	if(mDataLength!=255)
 	{
-		result+=mDataLenght;
+		result+=mDataLength;
 		++n;
 	}
-	for(int i=0; i<(mLenght-2-n); ++i)
+	for(int i=0; i<(mLength-2-n); ++i)
 	{
 		result+=mData[i];
 	}

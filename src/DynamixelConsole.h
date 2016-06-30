@@ -27,7 +27,7 @@ class DynamixelConsole
 	void run();
 	int parseCmd(char **argv);
 	void printStatus(DynamixelStatus aStatus);
-	void printData(const uint8_t *data, uint8_t lenght);
+	void printData(const uint8_t *data, uint8_t length);
 	
 	DynamixelStatus ping(int argc, char **argv);
 	DynamixelStatus read(int argc, char **argv);

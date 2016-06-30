@@ -98,7 +98,7 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 		mStream.write(0xFF);
 		mStream.write(0xFF);
 		mStream.write(aPacket.mID);
-		mStream.write(aPacket.mLenght);
+		mStream.write(aPacket.mLength);
 		mStream.write(aPacket.mInstruction);
 		uint8_t n=0;
 		if(aPacket.mAddress!=255)
@@ -106,16 +106,16 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 			mStream.write(aPacket.mAddress);
 			++n;
 		}
-		if(aPacket.mDataLenght!=255)
+		if(aPacket.mDataLength!=255)
 		{
-			mStream.write(aPacket.mDataLenght);
+			mStream.write(aPacket.mDataLength);
 			++n;
 		}
-		if(aPacket.mLenght>(2+n))
+		if(aPacket.mLength>(2+n))
 		{
 			if(aPacket.mIDListSize==0)
 			{
-				mStream.write(aPacket.mData, aPacket.mLenght-2-n);
+				mStream.write(aPacket.mData, aPacket.mLength-2-n);
 			}
 			else
 			{
@@ -123,8 +123,8 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 				for(uint8_t i=0; i<aPacket.mIDListSize; ++i)
 				{
 					mStream.write(aPacket.mIDList[i]);
-					mStream.write(ptr, aPacket.mDataLenght);
-					ptr+=aPacket.mDataLenght;
+					mStream.write(ptr, aPacket.mDataLength);
+					ptr+=aPacket.mDataLength;
 				}
 			}
 		}
@@ -153,9 +153,9 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 			return;
 		}
 		aPacket.mID=buffer[0];
-		aPacket.mLenght=buffer[1];
+		aPacket.mLength=buffer[1];
 		aPacket.mStatus=buffer[2];
-		if(aPacket.mLenght>2 && mStream.readBytes(reinterpret_cast<char*>(aPacket.mData), aPacket.mLenght-2)<(aPacket.mLenght-2))
+		if(aPacket.mLength>2 && mStream.readBytes(reinterpret_cast<char*>(aPacket.mData), aPacket.mLength-2)<(aPacket.mLength-2))
 		{
 			aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
 			return;

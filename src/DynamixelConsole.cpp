@@ -150,9 +150,9 @@ void DynamixelConsole::printStatus(DynamixelStatus aStatus)
 	mConsole.print("\n\r");
 }
 
-void DynamixelConsole::printData(const uint8_t *data, uint8_t lenght)
+void DynamixelConsole::printData(const uint8_t *data, uint8_t length)
 {
-	for(uint8_t i=0; i<lenght; ++i)
+	for(uint8_t i=0; i<length; ++i)
 	{
 		mConsole.print(data[i]);
 		mConsole.print(" ");
@@ -178,7 +178,7 @@ DynamixelStatus DynamixelConsole::ping(int argc, char **argv)
 
 DynamixelStatus DynamixelConsole::read(int argc, char **argv)
 {
-	int id=0, addr=0, lenght=1;
+	int id=0, addr=0, length=1;
 	if(argc<3)
 	{
 		mConsole.print("Usage : read <id> <address> <length=1>\n\r");
@@ -192,22 +192,22 @@ DynamixelStatus DynamixelConsole::read(int argc, char **argv)
 	addr=atoi(argv[2]);
 	if(argc>3)
 	{
-		lenght=atoi(argv[3]);
+		length=atoi(argv[3]);
 	}
-	if(lenght>255)
+	if(length>255)
 	{
 		return DYN_STATUS_INTERNAL_ERROR;
 	}
-	uint8_t *ptr=new uint8_t[lenght];
-	DynamixelStatus result=mInterface.read(id, addr, lenght, ptr);
-	printData(ptr,lenght); 
+	uint8_t *ptr=new uint8_t[length];
+	DynamixelStatus result=mInterface.read(id, addr, length, ptr);
+	printData(ptr,length); 
 	delete ptr;
 	return result;
 }
 
 DynamixelStatus DynamixelConsole::write(int argc, char **argv)
 {
-	int id=0, addr=0, lenght=0;
+	int id=0, addr=0, length=0;
 	if(argc<4)
 	{
 		mConsole.print("Usage : write <id> <address> <data_1> ... <data_N>\n\r");
@@ -219,18 +219,18 @@ DynamixelStatus DynamixelConsole::write(int argc, char **argv)
 		return DYN_STATUS_INTERNAL_ERROR;
 	}
 	addr=atoi(argv[2]);
-	lenght=argc-3;
-	if(lenght>255)
+	length=argc-3;
+	if(length>255)
 	{
 		return DYN_STATUS_INTERNAL_ERROR;
 	}
 	
-	uint8_t *ptr=new uint8_t[lenght];
-	for(uint8_t i=0; i<lenght; ++i)
+	uint8_t *ptr=new uint8_t[length];
+	for(uint8_t i=0; i<length; ++i)
 	{
 		ptr[i]=atoi(argv[i+3]);
 	} 
-	DynamixelStatus result=mInterface.write(id, addr, lenght, ptr);
+	DynamixelStatus result=mInterface.write(id, addr, length, ptr);
 	delete ptr;
 	return result;
 }

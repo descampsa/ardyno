@@ -77,8 +77,8 @@ struct DynamixelPacket
 {
 	DynamixelPacket(){}
 	//note : allow to constuct from const data, but const_cast it (constness should be respected if code is correct)
-	DynamixelPacket(uint8_t aID, uint8_t aInstruction, uint8_t aLenght, const uint8_t *aData, uint8_t aAddress=255, uint8_t aDataLenght=255, uint8_t aIDListSize=0, const uint8_t *aIDList=NULL):
-		mID(aID), mIDListSize(aIDListSize), mIDList(const_cast<uint8_t*>(aIDList)), mLenght(aLenght), mInstruction(aInstruction), mAddress(aAddress), mDataLenght(aDataLenght), mData(const_cast<uint8_t*>(aData))
+	DynamixelPacket(uint8_t aID, uint8_t aInstruction, uint8_t aLength, const uint8_t *aData, uint8_t aAddress=255, uint8_t aDataLength=255, uint8_t aIDListSize=0, const uint8_t *aIDList=NULL):
+		mID(aID), mIDListSize(aIDListSize), mIDList(const_cast<uint8_t*>(aIDList)), mLength(aLength), mInstruction(aInstruction), mAddress(aAddress), mDataLength(aDataLength), mData(const_cast<uint8_t*>(aData))
 	{
 		mCheckSum=checkSum();
 	}
@@ -88,8 +88,8 @@ struct DynamixelPacket
 	/** \brief ID list, used for sync write, set to 0 if not used */
 	uint8_t mIDListSize;
 	DynamixelID *mIDList;
-	/** \brief Packet lenght (full lenght)*/
-	uint8_t mLenght;
+	/** \brief Packet length (full length)*/
+	uint8_t mLength;
 	/** \brief Packet instruction or status */
 	union{
 		DynamixelInstruction mInstruction;
@@ -97,8 +97,8 @@ struct DynamixelPacket
 	};
 	/** \brief Address to read/write, set to 255 if not used */
 	uint8_t mAddress;
-	/** \brief Lenght of data to read/write, only needed for read and sync write, set to 255 if not used */
-	uint8_t mDataLenght;
+	/** \brief Length of data to read/write, only needed for read and sync write, set to 255 if not used */
+	uint8_t mDataLength;
 	/** \brief Pointer to packet parameter (or NULL if no parameter) */
 	uint8_t *mData;
 	/** \brief Packet checksum */
