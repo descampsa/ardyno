@@ -20,3 +20,7 @@ Connect GND and VIN pins of the adruino and dynamixel device, and tx and rx pins
 
 To control TTL/RS485 motors, with an additionnal hardware buffer:
 See Robotis documentation
+
+#Troubleshooting
+
+- If the servo is configured to answer immediatly to commands, the response packet may come back too fast and be missed by the arduino, and communication may become unstable or even impossible. To fix this, you have to write the value of the "Return Delay Time" register back to its orginal value (register 0x05, value 250).
