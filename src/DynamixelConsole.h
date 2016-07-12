@@ -32,6 +32,7 @@ class DynamixelConsole
 	DynamixelStatus ping(int argc, char **argv);
 	DynamixelStatus read(int argc, char **argv);
 	DynamixelStatus write(int argc, char **argv);
+	DynamixelStatus reset(int argc, char **argv);
 	
 	const static size_t sLineBufferSize=255;
 	char mLineBuffer[sLineBufferSize+1];

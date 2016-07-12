@@ -3,7 +3,8 @@
 const DynamixelCommand DynamixelConsole::sCommand[] =
 	{{"ping", &DynamixelConsole::ping},
 	{"read", &DynamixelConsole::read},
-	{"write", &DynamixelConsole::write}};
+	{"write", &DynamixelConsole::write},
+	{"reset", &DynamixelConsole::reset}};
 
 DynamixelConsole::DynamixelConsole(DynamixelInterface &aInterface, Stream &aConsole):
 	mInterface(aInterface), mConsole(aConsole)
@@ -232,6 +233,23 @@ DynamixelStatus DynamixelConsole::write(int argc, char **argv)
 	} 
 	DynamixelStatus result=mInterface.write(id, addr, length, ptr);
 	delete ptr;
+	return result;
+}
+
+DynamixelStatus DynamixelConsole::reset(int argc, char **argv)
+{
+	int id=0;
+	if(argc<2)
+	{
+		mConsole.print("Usage : reset <id>\n\r");
+		return DYN_STATUS_INTERNAL_ERROR;
+	}
+	id=atoi(argv[1]);
+	if(id<1 || id>254)
+	{
+		return DYN_STATUS_INTERNAL_ERROR;
+	}
+	DynamixelStatus result=mInterface.reset(id);
 	return result;
 }
 
