@@ -33,6 +33,8 @@ class DynamixelConsole
 	DynamixelStatus read(int argc, char **argv);
 	DynamixelStatus write(int argc, char **argv);
 	DynamixelStatus reset(int argc, char **argv);
+	DynamixelStatus reg_write(int argc, char **argv);
+	DynamixelStatus action(int argc, char **argv);
 	
 	const static size_t sLineBufferSize=255;
 	char mLineBuffer[sLineBufferSize+1];

@@ -4,7 +4,9 @@ const DynamixelCommand DynamixelConsole::sCommand[] =
 	{{"ping", &DynamixelConsole::ping},
 	{"read", &DynamixelConsole::read},
 	{"write", &DynamixelConsole::write},
-	{"reset", &DynamixelConsole::reset}};
+	{"reset", &DynamixelConsole::reset},
+	{"reg_write", &DynamixelConsole::write},
+	{"action", &DynamixelConsole::action}};
 
 DynamixelConsole::DynamixelConsole(DynamixelInterface &aInterface, Stream &aConsole):
 	mInterface(aInterface), mConsole(aConsole)
@@ -230,8 +232,16 @@ DynamixelStatus DynamixelConsole::write(int argc, char **argv)
 	for(uint8_t i=0; i<length; ++i)
 	{
 		ptr[i]=atoi(argv[i+3]);
-	} 
-	DynamixelStatus result=mInterface.write(id, addr, length, ptr);
+	}
+	DynamixelStatus result;
+	if(argv[0][0]=='r')
+	{
+		result=mInterface.regWrite(id, addr, length, ptr);
+	}
+	else
+	{
+		result=mInterface.write(id, addr, length, ptr);
+	}
 	delete ptr;
 	return result;
 }
@@ -250,6 +260,23 @@ DynamixelStatus DynamixelConsole::reset(int argc, char **argv)
 		return DYN_STATUS_INTERNAL_ERROR;
 	}
 	DynamixelStatus result=mInterface.reset(id);
+	return result;
+}
+
+DynamixelStatus DynamixelConsole::action(int argc, char **argv)
+{
+	int id=0;
+	if(argc<2)
+	{
+		mConsole.print("Usage : action <id>\n\r");
+		return DYN_STATUS_INTERNAL_ERROR;
+	}
+	id=atoi(argv[1]);
+	if(id>254)
+	{
+		return DYN_STATUS_INTERNAL_ERROR;
+	}
+	DynamixelStatus result=mInterface.action(id);
 	return result;
 }
 
