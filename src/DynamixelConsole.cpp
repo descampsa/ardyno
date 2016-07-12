@@ -170,7 +170,7 @@ DynamixelStatus DynamixelConsole::ping(int argc, char **argv)
 		return DYN_STATUS_INTERNAL_ERROR;
 	}
 	id=atoi(argv[1]);
-	if(id<1 || id>254)
+	if(id>254)
 	{
 		return DYN_STATUS_INTERNAL_ERROR;
 	}
@@ -186,7 +186,7 @@ DynamixelStatus DynamixelConsole::read(int argc, char **argv)
 		return DYN_STATUS_INTERNAL_ERROR;
 	}
 	id=atoi(argv[1]);
-	if(id<1 || id>254)
+	if(id>254)
 	{
 		return DYN_STATUS_INTERNAL_ERROR;
 	}
@@ -215,7 +215,7 @@ DynamixelStatus DynamixelConsole::write(int argc, char **argv)
 		return DYN_STATUS_INTERNAL_ERROR;
 	}
 	id=atoi(argv[1]);
-	if(id<1 || id>254)
+	if(id>254)
 	{
 		return DYN_STATUS_INTERNAL_ERROR;
 	}
@@ -245,7 +245,7 @@ DynamixelStatus DynamixelConsole::reset(int argc, char **argv)
 		return DYN_STATUS_INTERNAL_ERROR;
 	}
 	id=atoi(argv[1]);
-	if(id<1 || id>254)
+	if(id>254)
 	{
 		return DYN_STATUS_INTERNAL_ERROR;
 	}
