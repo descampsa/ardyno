@@ -142,6 +142,9 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 	void receivePacket(DynamixelPacket &aPacket)
 	{
 		static uint8_t buffer[3];
+		aPacket.mIDListSize=0;
+		aPacket.mAddress=255;
+		aPacket.mDataLength=255;
 		if(mStream.readBytes(buffer,2)<2)
 		{
 			aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
