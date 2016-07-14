@@ -30,7 +30,7 @@ enum DynInstruction
 	DYN_REG_WRITE	= 0x04,
 	DYN_ACTION		= 0x05,
 	DYN_RESET		= 0x06,
-	DYN_SYNC_WRITE	= 0x07
+	DYN_SYNC_WRITE	= 0x83
 };
 
 /**
