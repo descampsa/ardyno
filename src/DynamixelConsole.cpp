@@ -6,7 +6,8 @@ const DynamixelCommand DynamixelConsole::sCommand[] =
 	{"write", &DynamixelConsole::write},
 	{"reset", &DynamixelConsole::reset},
 	{"reg_write", &DynamixelConsole::write},
-	{"action", &DynamixelConsole::action}};
+	{"action", &DynamixelConsole::action},
+	{"sync_write", &DynamixelConsole::sync_write}};
 
 DynamixelConsole::DynamixelConsole(DynamixelInterface &aInterface, Stream &aConsole):
 	mInterface(aInterface), mConsole(aConsole)
@@ -277,6 +278,42 @@ DynamixelStatus DynamixelConsole::action(int argc, char **argv)
 		return DYN_STATUS_INTERNAL_ERROR;
 	}
 	DynamixelStatus result=mInterface.action(id);
+	return result;
+}
+
+DynamixelStatus DynamixelConsole::sync_write(int argc, char **argv)
+{
+	int id_number=0, addr=0, length=0;
+	
+	if(argc>3)
+	{
+		id_number=atoi(argv[1]);
+		addr=atoi(argv[2]);
+		length=(argc-3)/id_number-1;
+	}
+	if(length<=0)
+	{
+		mConsole.print("Usage : sync_write <id_number> <address> <id_1> <data_1_1> ... <data_1_N> ... <id_M> <data_M_1> ... <data_M_N>\n\r");
+		return DYN_STATUS_INTERNAL_ERROR;
+	}
+	
+	uint8_t *id_ptr=new uint8_t[id_number];
+	uint8_t *data_ptr=new uint8_t[id_number*length];
+	int index=3;
+	for(uint8_t i=0; i<id_number; ++i)
+	{
+		id_ptr[i]=atoi(argv[index]);
+		++index;
+		for(uint8_t j=0; j<length; ++j)
+		{
+			data_ptr[i*length+j]=atoi(argv[index]);
+			++index;
+		}
+	}
+	
+	DynamixelStatus result=mInterface.syncWrite(id_number, id_ptr, addr, length, data_ptr);
+	delete[] data_ptr;
+	delete[] id_ptr;
 	return result;
 }
 
