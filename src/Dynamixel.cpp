@@ -18,7 +18,7 @@ uint8_t DynamixelPacket::checkSum()
 		result+=mDataLength;
 		++n;
 	}
-	for(int i=0; i<(mLength-2-n); ++i)
+	for(int i=0; i<(mLength-2-n-mIDListSize); ++i)
 	{
 		result+=mData[i];
 	}
