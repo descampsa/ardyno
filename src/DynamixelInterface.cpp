@@ -2,6 +2,7 @@
 #include "DynamixelInterface.h"
 #include <SoftwareSerial.h>
 
+#if __AVR__
 // define TXEN, RXEN and RXCIE
 #if !defined(TXEN)
 #if defined(TXEN0)
@@ -14,6 +15,7 @@
 #define RXCIE RXCIE1
 #endif
 #endif
+#endif //__AVR__
 
 DynamixelInterface *createSerialInterface(HardwareSerial &aSerial)
 {
@@ -54,6 +56,7 @@ DynamixelInterface *createSoftSerialInterface(uint8_t aRxPin, uint8_t aTxPin, ui
 	return new DynamixelInterfaceImpl<DynSoftwareSerial>(serial, aDirectionPin, true);
 }
 
+#if __AVR__
 namespace {
 //dirty trick to access protected member
 class HardwareSerialAccess:public HardwareSerial
@@ -80,6 +83,31 @@ void setWriteMode<HardwareSerial>(HardwareSerial &aStream)
 	*(stream.ucsrb()) |= _BV(RXCIE);
 	*(stream.ucsrb()) |= _BV(TXEN);
 }
+
+#elif __arc__
+
+//Arduino 101 specific code
+
+template<>
+void setReadMode<HardwareSerial>(HardwareSerial &aStream)
+{
+	//enable pull up to avoid noise on the line
+	pinMode(1, INPUT);
+	digitalWrite(1, HIGH);
+	// disconnect UART TX and connect UART RX
+	SET_PIN_MODE(16, GPIO_MUX_MODE);
+	SET_PIN_MODE(17, UART_MUX_MODE);
+}
+
+template<>
+void setWriteMode<HardwareSerial>(HardwareSerial &aStream)
+{
+	// disconnect UART RX and connect UART TX
+	SET_PIN_MODE(17, GPIO_MUX_MODE);
+	SET_PIN_MODE(16, UART_MUX_MODE);
+}
+
+#endif
 
 
 template<>
