@@ -16,7 +16,9 @@ Ardyno is available in the Arduino Library Manager, or you can get it directly f
 
 To control TTL motors, without any additionnal hardware:
 You can use a 9V or 12V power supply to power the arduino and motors.
-Connect GND and VIN pins of the adruino and dynamixel device, and tx and rx pins of the arduino to the data pin of your dynamixel device.
+Connect GND and VIN pins of the adruino and dynamixel device, and tx and rx pins of the arduino to the data pin of your dynamixel device (see image below).
+
+![Dynamixel connection schematic](doc/dynamixel_connect.svg "Dynamixel connection")
 
 To control TTL/RS485 motors, with an additionnal hardware buffer:
 See Robotis documentation
