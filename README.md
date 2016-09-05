@@ -19,7 +19,7 @@ You can use a 9V or 12V power supply to power the arduino and motors.
 Connect GND and VIN pins of the arduino to the GND and VCC pins of your dynamixel device, and tx and rx pins of the arduino to the data pin of your dynamixel device (see image [here](doc/dynamixel_connect.svg)). However, be carrefull that the current you can draw from arduino VIN pin is limited by the protection diode (specified at 1 amp max, for Arduino Uno), so if you use several motors, or put them under a significant load, it is better to connect the power supply separately to the motors. Also note that this is only valid for 5V boards. 3.3V boards may work in practice if they are 5V tolerant, but it is not recommended.
 
 To control TTL/RS485 motors, with an additionnal hardware buffer:
-See Robotis documentation
+See [Robotis documentation](http://support.robotis.com/en/product/dxl_main.htm)
 
 #Troubleshooting
 
