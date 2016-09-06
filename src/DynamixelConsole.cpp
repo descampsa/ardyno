@@ -1,4 +1,5 @@
 #include "DynamixelConsole.h"
+#include <Stream.h>
 
 const DynamixelCommand DynamixelConsole::sCommand[] =
 	{{"ping", &DynamixelConsole::ping},

@@ -6,31 +6,76 @@
 #ifndef DYNAMIXEL_MOTOR_H
 #define DYNAMIXEL_MOTOR_H
 
-#include "Dynamixel.h"
+#include "DynamixelInterface.h"
 
-/**
- * \brief Dynamixel motor control table addresses (only addresses used by all motor models)
-*/
-enum DynMotorAddress
+class DynamixelDevice
 {
-	/** \brief Clockwise angle limit, uint16_t , writable */
-	DYN_ADDRESS_CW_LIMIT		=0x06,
-	/** \brief Counnter clockwise angle limit, uint16_t , writable */
-	DYN_ADDRESS_CCW_LIMIT		=0x08,
-	/** \brief Maximum torque, uint16_t , writable */
-	DYN_ADDRESS_MAX_TORQUE		=0x0E,
+	public:
 	
-	/** \brief Enable torque, uint8_t , writable */
-	DYN_ADDRESS_ENABLE_TORQUE		=0x18,
-	/** \brief LED state, uint8_t , writable */
-	DYN_ADDRESS_LED					=0x19,
-	/** \brief Goal position, uint16_t , writable */
-	DYN_ADDRESS_GOAL_POSITION		=0x1E,
-	/** \brief Goal speed, uint16_t , writable */
-	DYN_ADDRESS_GOAL_SPEED		=0x20,
-	/** \brief Current position, uint16_t , readable */
-	DYN_ADDRESS_CURRENT_POSITION		=0x24,
+	DynamixelDevice(DynamixelInterface &aInterface, DynamixelID aId);
+	
+	DynamixelStatus init();
+	
+	DynamixelStatus status()
+	{
+		return mStatus;
+	}
+	
+	DynamixelID id()
+	{
+		return mID;
+	}
+	
+	uint8_t statusReturnLevel();
+	void statusReturnLevel(uint8_t aSRL);
+	
+	uint16_t model();
+	uint8_t firmware();
+	
+	void communicationSpeed(uint32_t aSpeed);
+	
+	
+	template<class T>
+	inline DynamixelStatus read(uint8_t aAddress, T& aData)
+	{
+		return mStatus=mInterface.read<T>(mID, aAddress, aData, mStatusReturnLevel);
+	}
+	
+	template<class T>
+	inline DynamixelStatus write(uint8_t aAddress, const T& aData)
+	{
+		return mStatus=mInterface.write<T>(mID, aAddress, aData, mStatusReturnLevel);
+	}
+	
+	template<class T>
+	inline DynamixelStatus regWrite(uint8_t aAddress, const T& aData)
+	{
+		return mStatus=mInterface.regWrite<T>(mID, aAddress, aData, mStatusReturnLevel);
+	}
+	
+	DynamixelStatus ping()
+	{
+		return mStatus=mInterface.ping(mID);
+	}
+	
+	DynamixelStatus action()
+	{
+		return mStatus=mInterface.action(mID, mStatusReturnLevel);
+	}
+	
+	DynamixelStatus reset()
+	{
+		return mStatus=mInterface.reset(mID, mStatusReturnLevel);
+	}
+	
+	private:
+	
+	DynamixelInterface &mInterface;
+	DynamixelID mID;
+	uint8_t mStatusReturnLevel;
+	DynamixelStatus mStatus;
 };
+
 
 class DynamixelMotor:public DynamixelDevice
 {

@@ -1,4 +1,4 @@
-#include <Dynamixel.h>
+#include <DynamixelMotor.h>
 
 DynamixelInterface &interface=*createSerialInterface(Serial);
 DynamixelDevice device(interface, BROADCAST_ID);

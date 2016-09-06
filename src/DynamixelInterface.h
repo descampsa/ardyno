@@ -3,184 +3,71 @@
 #ifndef DYNAMIXEL_INTERFACE_H
 #define DYNAMIXEL_INTERFACE_H
 
-#include <Arduino.h>
 #include "Dynamixel.h"
 
-
-template<class T>
-static void setReadMode(T &aStream);
-
-template<class T>
-static void setWriteMode(T &mStream);
-
-
-template<class T>
-class DynamixelInterfaceImpl:public DynamixelInterface
+/**
+ * \class  DynamixelInterface
+ * \brief Represent a dynamixel bus
+*/
+class DynamixelInterface
 {
-	private:
-	/** \brief Switch stream to read (receive)) mode */
-	void readMode()
-	{
-		if(mDirectionPin!=NO_DIR_PORT)
-		{
-			digitalWrite(mDirectionPin, LOW);
-		}
-		else
-		{
-			setReadMode(mStream);
-		}
-	}
-	
-	/** \brief Switch stream to write (send) mode */
-	void writeMode()
-	{
-		if(mDirectionPin!=NO_DIR_PORT)
-		{
-			digitalWrite(mDirectionPin, HIGH);
-		}
-		else
-		{
-			setWriteMode(mStream);
-		}
-	}
-	
 	public:
+	virtual void begin(unsigned long aBaud)=0;
+	virtual void sendPacket(const DynamixelPacket &aPacket)=0;
+	virtual void receivePacket(DynamixelPacket &aPacket)=0;
 	
-	/**
-	 * \brief Constructor
-	 * \param[in] aStreamController : stream controller that abstract real stream
-	 * \param[in] aDirectionPin : direction pin, use NO_DIR_PORT if you do not one (default)
-	 * \param[in] aTranferOwnership : if true, the stream will be deleted in the destructor
-	*/
-	DynamixelInterfaceImpl(T &aStream, uint8_t aDirectionPin=NO_DIR_PORT, bool aTranferOwnership=false):
-		mStream(aStream), mDirectionPin(aDirectionPin), mStreamOwner(aTranferOwnership)
-	{
-		if(mDirectionPin!=NO_DIR_PORT)
-		{
-			digitalWrite(mDirectionPin, LOW);
-			pinMode(mDirectionPin, OUTPUT);
-		}
-	}
+	void transaction(bool aExpectStatus);
 	
-	/**
-	 * \brief Destructor
-	 * Delete stream if it is owned by the instance
-	 */
-	~DynamixelInterfaceImpl()
-	{
-		if(mStreamOwner)
-			delete &mStream;
-	}
+	//sizeof(T) must be lower than DYN_INTERNAL_BUFFER_SIZE, and in any case lower than 256
+	template<class T>
+	inline DynamixelStatus read(uint8_t aID, uint8_t aAddress, T& aData, uint8_t aStatusReturnLevel=2);
+	template<class T>
+	inline DynamixelStatus write(uint8_t aID, uint8_t aAddress, const T& aData, uint8_t aStatusReturnLevel=2);
+	template<class T>
+	inline DynamixelStatus regWrite(uint8_t aID, uint8_t aAddress, const T& aData, uint8_t aStatusReturnLevel=2);
 	
-	/**
-	 * \brief Start interface
-	 * \param[in] aBaud : Baudrate
-	 *
-	 * Start the interface with desired baudrate, call once before using the interface
-	*/
-	void begin(unsigned long aBaud)
-	{
-		mStream.begin(aBaud);
-		mStream.setTimeout(50); //warning : response delay seems much higher than expected for some operation (eg writing eeprom)
-		readMode();
-	}
+	DynamixelStatus read(uint8_t aID, uint8_t aAddress, uint8_t aSize, uint8_t *aPtr, uint8_t aStatusReturnLevel=2);
+	DynamixelStatus write(uint8_t aID, uint8_t aAddress, uint8_t aSize, const uint8_t *aPtr, uint8_t aStatusReturnLevel=2);
+	DynamixelStatus regWrite(uint8_t aID, uint8_t aAddress, uint8_t aSize, const uint8_t *aPtr, uint8_t aStatusReturnLevel=2);
+	DynamixelStatus syncWrite(uint8_t nID, const uint8_t *aID, uint8_t aAddress, uint8_t aSize, const uint8_t *aPtr, uint8_t aStatusReturnLevel=2);
 	
-	/**
-	 * \brief Send a packet on bus
-	 * \param[in] aPacket : Packet to send
-	 *
-	 * The function wait for the packet to be completly sent (using Stream.flush)
-	*/
-	void sendPacket(const DynamixelPacket &aPacket)
-	{
-		writeMode();
-	
-		mStream.write(0xFF);
-		mStream.write(0xFF);
-		mStream.write(aPacket.mID);
-		mStream.write(aPacket.mLength);
-		mStream.write(aPacket.mInstruction);
-		uint8_t n=0;
-		if(aPacket.mAddress!=255)
-		{
-			mStream.write(aPacket.mAddress);
-			++n;
-		}
-		if(aPacket.mDataLength!=255)
-		{
-			mStream.write(aPacket.mDataLength);
-			++n;
-		}
-		if(aPacket.mLength>(2+n))
-		{
-			if(aPacket.mIDListSize==0)
-			{
-				mStream.write(aPacket.mData, aPacket.mLength-2-n);
-			}
-			else
-			{
-				uint8_t *ptr=aPacket.mData;
-				for(uint8_t i=0; i<aPacket.mIDListSize; ++i)
-				{
-					mStream.write(aPacket.mIDList[i]);
-					mStream.write(ptr, aPacket.mDataLength);
-					ptr+=aPacket.mDataLength;
-				}
-			}
-		}
-		mStream.write(aPacket.mCheckSum);
-		mStream.flush();
-		readMode();
-	}
-	/**
-	 * \brief Receive a packet on bus
-	 * \param[out] aPacket : Received packet. mData field must be previously allocated
-	 *
-	 * The function wait for a new packet on the bus. Timeout depends of timeout of the underlying stream.
-	 * Return error code in case of communication error (timeout, checksum error, ...)
-	*/
-	void receivePacket(DynamixelPacket &aPacket)
-	{
-		static uint8_t buffer[3];
-		aPacket.mIDListSize=0;
-		aPacket.mAddress=255;
-		aPacket.mDataLength=255;
-		if(mStream.readBytes(buffer,2)<2)
-		{
-			aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
-			return;
-		}
-		if(mStream.readBytes(buffer, 3)<3)
-		{
-			aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
-			return;
-		}
-		aPacket.mID=buffer[0];
-		aPacket.mLength=buffer[1];
-		aPacket.mStatus=buffer[2];
-		if(aPacket.mLength>2 && mStream.readBytes(reinterpret_cast<char*>(aPacket.mData), aPacket.mLength-2)<(aPacket.mLength-2))
-		{
-			aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
-			return;
-		}
-		if(mStream.readBytes(reinterpret_cast<char*>(&(aPacket.mCheckSum)),1)<1)
-		{
-			aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
-			return;
-		}
-		if(aPacket.checkSum()!=aPacket.mCheckSum)
-		{
-			aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_CHECKSUM_ERROR;
-		}
-	}
-	
-	static const uint8_t NO_DIR_PORT=255;
+	DynamixelStatus ping(uint8_t aID);
+	DynamixelStatus action(uint8_t aID=BROADCAST_ID, uint8_t aStatusReturnLevel=2);
+	DynamixelStatus reset(uint8_t aID, uint8_t aStatusReturnLevel=2);
 	
 	private:
 	
-	T &mStream;
-	const uint8_t mDirectionPin;
-	bool mStreamOwner;
+	DynamixelPacket mPacket;
 };
+
+template<class T>
+DynamixelStatus DynamixelInterface::read(uint8_t aID, uint8_t aAddress, T& aData, uint8_t aStatusReturnLevel)
+{
+	return read(aID, aAddress, uint8_t(sizeof(T)), (uint8_t*)&aData, aStatusReturnLevel);
+}
+template<class T>
+DynamixelStatus DynamixelInterface::write(uint8_t aID, uint8_t aAddress, const T& aData, uint8_t aStatusReturnLevel)
+{
+	return write(aID, aAddress, uint8_t(sizeof(T)), (const uint8_t*)&aData, aStatusReturnLevel);
+}
+template<class T>
+DynamixelStatus DynamixelInterface::regWrite(uint8_t aID, uint8_t aAddress, const T& aData, uint8_t aStatusReturnLevel)
+{
+	return regWrite(aID, aAddress, uint8_t(sizeof(T)), (const uint8_t*)aData, aStatusReturnLevel);
+}
+
+
+// Arduino constructors
+
+class HardwareSerial;
+
+/** \brief Create dynamixel interface from hardware uart */
+DynamixelInterface *createSerialInterface(HardwareSerial &aSerial);
+/** \brief Create dynamixel interface from hardware uart with direction port connected to a 3-state buffer */
+DynamixelInterface *createSerialInterface(HardwareSerial &aSerial, uint8_t aDirectionPin);
+/** \brief Create dynamixel interface from software uart (need SoftwareSerial) */
+DynamixelInterface *createSoftSerialInterface(uint8_t aRxPin, uint8_t aTxPin);
+/** \brief Create dynamixel interface from software uart with direction port connected to a 3-state buffer (need SoftwareSerial) */
+DynamixelInterface *createSoftSerialInterface(uint8_t aRxPin, uint8_t aTxPin, uint8_t aDirectionPin);
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef DYNAMIXEL_CONSOLE_H
 #define DYNAMIXEL_CONSOLE_H
 
-#include "Dynamixel.h"
+#include "DynamixelInterface.h"
 
 class DynamixelConsole;
 
@@ -13,7 +13,7 @@ struct DynamixelCommand
 	FunPtr mCallback;
 };
 
-
+class Stream;
 class DynamixelConsole
 {
 	public:
