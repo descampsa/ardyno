@@ -177,6 +177,14 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 			aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_CHECKSUM_ERROR;
 		}
 	}
+
+	/**
+         * \brief Stop interface
+        */
+        void end()
+        {
+                mStream.end();
+        }
 	
 	static const uint8_t NO_DIR_PORT=255;
 	

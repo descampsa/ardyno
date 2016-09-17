@@ -15,6 +15,7 @@ class DynamixelInterface
 	virtual void begin(unsigned long aBaud)=0;
 	virtual void sendPacket(const DynamixelPacket &aPacket)=0;
 	virtual void receivePacket(DynamixelPacket &aPacket)=0;
+	virtual void end()=0;
 	
 	void transaction(bool aExpectStatus);
 	
