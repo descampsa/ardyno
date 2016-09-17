@@ -8,7 +8,8 @@ const DynamixelCommand DynamixelConsole::sCommand[] =
 	{"reset", &DynamixelConsole::reset},
 	{"reg_write", &DynamixelConsole::write},
 	{"action", &DynamixelConsole::action},
-	{"sync_write", &DynamixelConsole::sync_write}};
+	{"sync_write", &DynamixelConsole::sync_write},
+	{"baud", &DynamixelConsole::baudrate}};
 
 DynamixelConsole::DynamixelConsole(DynamixelInterface &aInterface, Stream &aConsole):
 	mInterface(aInterface), mConsole(aConsole)
@@ -317,4 +318,23 @@ DynamixelStatus DynamixelConsole::sync_write(int argc, char **argv)
 	delete[] id_ptr;
 	return result;
 }
+
+DynamixelStatus DynamixelConsole::baudrate(int argc, char **argv)
+{
+	int baud=0;
+	if(argc<2)
+	{
+		mConsole.print("Usage : baud <baudrate>\n\r");
+		return DYN_STATUS_INTERNAL_ERROR;
+	}
+	baud=atoi(argv[1]);
+	if(baud<=0 && baud>2000000)
+	{
+		return DYN_STATUS_INTERNAL_ERROR;
+	}
+	mInterface.end();
+	mInterface.begin(baud);
+	return DYN_STATUS_OK;
+}
+
 

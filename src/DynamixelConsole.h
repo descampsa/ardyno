@@ -36,6 +36,7 @@ class DynamixelConsole
 	DynamixelStatus reg_write(int argc, char **argv);
 	DynamixelStatus action(int argc, char **argv);
 	DynamixelStatus sync_write(int argc, char **argv);
+	DynamixelStatus baudrate(int argc, char **argv);
 	
 	const static size_t sLineBufferSize=255;
 	char mLineBuffer[sLineBufferSize+1];
