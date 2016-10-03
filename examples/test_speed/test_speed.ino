@@ -2,14 +2,14 @@
 
 const uint8_t id=1;
 
-DynamixelInterface &interface=*createSerialInterface(Serial);
+DynamixelInterface interface(Serial, 2);
 DynamixelMotor motor(interface, id);
 
 // demonstrate how to change communication speed
 // the led should blink three time
 void setup() 
 {
-  //start at 1MBd
+/*  //start at 1MBd
   delay(100);
   interface.begin(1000000);
   
@@ -20,11 +20,11 @@ void setup()
   delay(1000);
   
   //switch motor to 9600Bd
-  motor.communicationSpeed(9600);
+  motor.communicationSpeed(9600);*/
   
   //switch interface speed to 9600Bd
   delay(100);
-  interface.begin(9600);
+  interface.begin(57600);
   
   motor.led(HIGH);
   delay(1000);
@@ -32,10 +32,10 @@ void setup()
   delay(1000);
   
   //switch back to 1MBd
-  motor.communicationSpeed(1000000);
+  motor.communicationSpeed(9600);
   
   delay(100);
-  interface.begin(1000000);
+  interface.begin(9600);
   
   motor.led(HIGH);
   delay(1000);

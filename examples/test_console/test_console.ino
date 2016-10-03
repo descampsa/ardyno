@@ -13,19 +13,16 @@
 // You can find the register description table in the doc directory usefull
 // Note that all values, including adresses must be passed in decimal format
 
-DynamixelInterface *interface=NULL;
-DynamixelConsole *console=NULL;
+//HardwareDynamixelInterface interface(Serial1, 2);
+SoftwareDynamixelInterface interface(3, 4, 2);
+DynamixelConsole console(interface, Serial);
 
 void setup() {
-  interface=createSoftSerialInterface(2,3);
-  interface->begin(9600);
+  //while(!Serial);
+  interface.begin(9600);
   Serial.begin(9600);
-
-  console=new DynamixelConsole(*interface, Serial);
 }
 
 void loop() {
-
   console->loop();
-
 }

@@ -1,6 +1,6 @@
 #include <DynamixelMotor.h>
 
-DynamixelInterface &interface=*createSerialInterface(Serial);
+HardwareDynamixelInterface interface(Serial,2);
 DynamixelDevice device(interface, BROADCAST_ID);
 uint8_t on=true;
 
