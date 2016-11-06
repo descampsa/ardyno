@@ -22,9 +22,8 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 	 * \brief Constructor
 	 * \param[in] aStreamController : stream controller that abstract real stream
 	 * \param[in] aDirectionPin : direction pin, use NO_DIR_PORT if you do not one (default)
-	 * \param[in] aTranferOwnership : if true, the stream will be deleted in the destructor
 	*/
-	DynamixelInterfaceImpl(T &aStream, uint8_t aDirectionPin, bool aTranferOwnership);
+	DynamixelInterfaceImpl(T &aStream, uint8_t aDirectionPin);
 	
 	/**
 	 * \brief Destructor
@@ -68,7 +67,6 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 	
 	T &mStream;
 	const uint8_t mDirectionPin;
-	bool mStreamOwner;
 };
 
 class HardwareDynamixelInterface:public DynamixelInterfaceImpl<HardwareSerial>
@@ -98,6 +96,8 @@ class SoftwareDynamixelInterface:public DynamixelInterfaceImpl<DynSoftwareSerial
 	public:
 	SoftwareDynamixelInterface(uint8_t aRxPin, uint8_t aTxPin, uint8_t aDirectionPin=NO_DIR_PORT);
 	~SoftwareDynamixelInterface();
+	private:
+	DynSoftwareSerial mSoftSerial;
 };
 
 

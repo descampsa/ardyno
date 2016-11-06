@@ -43,8 +43,8 @@ void DynamixelInterfaceImpl<T>::writeMode()
 }
 	
 template<class T>
-DynamixelInterfaceImpl<T>::DynamixelInterfaceImpl(T &aStream, uint8_t aDirectionPin=NO_DIR_PORT, bool aTranferOwnership=false):
-	mStream(aStream), mDirectionPin(aDirectionPin), mStreamOwner(aTranferOwnership)
+DynamixelInterfaceImpl<T>::DynamixelInterfaceImpl(T &aStream, uint8_t aDirectionPin=NO_DIR_PORT):
+	mStream(aStream), mDirectionPin(aDirectionPin)
 {
 	if(mDirectionPin!=NO_DIR_PORT)
 	{
@@ -56,8 +56,6 @@ DynamixelInterfaceImpl<T>::DynamixelInterfaceImpl(T &aStream, uint8_t aDirection
 template<class T>
 DynamixelInterfaceImpl<T>::~DynamixelInterfaceImpl()
 {
-	if(mStreamOwner)
-		delete &mStream;
 }
 
 template<class T>
@@ -158,7 +156,7 @@ template class DynamixelInterfaceImpl<DynSoftwareSerial>;
 
 
 HardwareDynamixelInterface::HardwareDynamixelInterface(HardwareSerial &aSerial, uint8_t aDirectionPin):
-	DynamixelInterfaceImpl(aSerial, aDirectionPin, false)
+	DynamixelInterfaceImpl(aSerial, aDirectionPin)
 {}
 
 HardwareDynamixelInterface::~HardwareDynamixelInterface()
@@ -166,7 +164,8 @@ HardwareDynamixelInterface::~HardwareDynamixelInterface()
 
 
 SoftwareDynamixelInterface::SoftwareDynamixelInterface(uint8_t aRxPin, uint8_t aTxPin, uint8_t aDirectionPin):
-	DynamixelInterfaceImpl(*new DynSoftwareSerial(aRxPin, aTxPin), aDirectionPin, true)
+	DynamixelInterfaceImpl(mSoftSerial, aDirectionPin),
+	mSoftSerial(aRxPin, aTxPin)
 {}
 
 SoftwareDynamixelInterface::~SoftwareDynamixelInterface()
