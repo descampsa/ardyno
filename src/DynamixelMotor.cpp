@@ -8,6 +8,15 @@ DynamixelDevice::DynamixelDevice(DynamixelInterface &aInterface, DynamixelID aID
 		mStatusReturnLevel=0;
 }
 
+DynamixelStatus DynamixelDevice::changeId(uint8_t id)
+{
+	DynamixelStatus result;
+	result=write(DYN_ADDRESS_ID, id);
+	if(result==DYN_STATUS_OK)
+		mID=id;
+	return result;
+}
+
 uint8_t DynamixelDevice::statusReturnLevel()
 {
 	if(mStatusReturnLevel==255)

@@ -25,6 +25,8 @@ class DynamixelDevice
 	{
 		return mID;
 	}
+
+	DynamixelStatus changeId(uint8_t id);
 	
 	uint8_t statusReturnLevel();
 	void statusReturnLevel(uint8_t aSRL);
