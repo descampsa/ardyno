@@ -9,7 +9,8 @@ const DynamixelCommand DynamixelConsole::sCommand[] =
 	{"reg_write", &DynamixelConsole::write},
 	{"action", &DynamixelConsole::action},
 	{"sync_write", &DynamixelConsole::sync_write},
-	{"baud", &DynamixelConsole::baudrate}};
+	{"baud", &DynamixelConsole::baudrate},
+	};
 
 DynamixelConsole::DynamixelConsole(DynamixelInterface &aInterface, Stream &aConsole):
 	mInterface(aInterface), mConsole(aConsole)
@@ -56,14 +57,21 @@ void DynamixelConsole::run()
 	char *argv[16];
 	int argc=parseCmd(argv);
 	
-	const int commandNumber=sizeof(sCommand)/sizeof(DynamixelCommand);
-	for(int i=0; i<commandNumber; ++i)
+	if(strcmp(argv[0], "help")==0)
 	{
-		if(strcmp(argv[0],sCommand[i].mName)==0)
+		printHelp();
+	}
+	else
+	{
+		const int commandNumber=sizeof(sCommand)/sizeof(DynamixelCommand);
+		for(int i=0; i<commandNumber; ++i)
 		{
-			DynamixelStatus status=(this->*(sCommand[i].mCallback))(argc, argv);
-			printStatus(status);
-			break;
+			if(strcmp(argv[0],sCommand[i].mName)==0)
+			{
+				DynamixelStatus status=(this->*(sCommand[i].mCallback))(argc, argv);
+				printStatus(status);
+				break;
+			}
 		}
 	}
 }
@@ -164,6 +172,18 @@ void DynamixelConsole::printData(const uint8_t *data, uint8_t length)
 		mConsole.print(" ");
 	}
 	mConsole.print("\n\r");
+}
+
+void DynamixelConsole::printHelp()
+{
+	mConsole.print("Available commands: ");
+	const int commandNumber=sizeof(sCommand)/sizeof(DynamixelCommand);
+	for(int i=0; i<commandNumber; ++i)
+	{
+		mConsole.print(sCommand[i].mName);
+		mConsole.print(", ");
+	}
+	mConsole.print("\n\rCall the command without argument to see its usage\n\rHave fun\n\r");
 }
 
 DynamixelStatus DynamixelConsole::ping(int argc, char **argv)
