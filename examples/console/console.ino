@@ -32,5 +32,5 @@ void setup() {
 }
 
 void loop() {
-  console->loop();
+  console.loop();
 }
