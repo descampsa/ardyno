@@ -25,7 +25,7 @@ void DynamixelInterfaceImpl<T>::readMode()
 	}
 	else
 	{
-		setReadMode(mStream);
+		setReadMode(mStream, mTxPin);
 	}
 }
 	
@@ -38,13 +38,13 @@ void DynamixelInterfaceImpl<T>::writeMode()
 	}
 	else
 	{
-		setWriteMode(mStream);
+		setWriteMode(mStream, mTxPin);
 	}
 }
 	
 template<class T>
-DynamixelInterfaceImpl<T>::DynamixelInterfaceImpl(T &aStream, uint8_t aDirectionPin=NO_DIR_PORT):
-	mStream(aStream), mDirectionPin(aDirectionPin)
+DynamixelInterfaceImpl<T>::DynamixelInterfaceImpl(T &aStream, uint8_t aTxPin, uint8_t aDirectionPin=NO_DIR_PORT):
+	mStream(aStream), mDirectionPin(aDirectionPin), mTxPin(aTxPin)
 {
 	if(mDirectionPin!=NO_DIR_PORT)
 	{
@@ -152,11 +152,33 @@ void DynamixelInterfaceImpl<T>::end()
 }
 
 template class DynamixelInterfaceImpl<HardwareSerial>;
-template class DynamixelInterfaceImpl<DynSoftwareSerial>;
+template class DynamixelInterfaceImpl<SoftwareSerial>;
+
+//determine txpin number from hardware serial interface
+uint8_t TxPinFromHardwareSerial(const HardwareSerial &aSerial)
+{
+#if defined ARDUINO_AVR_UNO || defined ARDUINO_AVR_DUEMILANOVE || defined ARDUINO_AVR_NANO || defined ARDUINO_AVR_MEGA2560 || defined ARDUINO_AVR_MEGA || defined ARDUINO_AVR_ADK || defined ARDUINO_AVR_MINI || defined ARDUINO_AVR_ETHERNET || defined ARDUINO_AVR_BT || defined ARDUINO_AVR_PRO
+	if((&aSerial)==(&Serial))
+		return 1;
+#endif
+#if defined ARDUINO_AVR_LEONARDO || defined ARDUINO_AVR_MICRO || defined ARDUINO_AVR_ROBOT_CONTROL || defined ARDUINO_ARC32_TOOLS
+	if((&aSerial)==(&Serial1))
+		return 1;
+#endif
+#if defined ARDUINO_AVR_MEGA2560 || defined ARDUINO_AVR_MEGA || defined ARDUINO_AVR_ADK 
+	if((&aSerial)==(&Serial1))
+		return 18;
+	if((&aSerial)==(&Serial2))
+		return 16;
+	if((&aSerial)==(&Serial3))
+		return 14;
+#endif
+	return -1;
+}
 
 
 HardwareDynamixelInterface::HardwareDynamixelInterface(HardwareSerial &aSerial, uint8_t aDirectionPin):
-	DynamixelInterfaceImpl(aSerial, aDirectionPin)
+	DynamixelInterfaceImpl(aSerial, TxPinFromHardwareSerial(aSerial), aDirectionPin)
 {}
 
 HardwareDynamixelInterface::~HardwareDynamixelInterface()
@@ -164,7 +186,7 @@ HardwareDynamixelInterface::~HardwareDynamixelInterface()
 
 
 SoftwareDynamixelInterface::SoftwareDynamixelInterface(uint8_t aRxPin, uint8_t aTxPin, uint8_t aDirectionPin):
-	DynamixelInterfaceImpl(mSoftSerial, aDirectionPin),
+	DynamixelInterfaceImpl(mSoftSerial, aTxPin, aDirectionPin),
 	mSoftSerial(aRxPin, aTxPin)
 {}
 
@@ -173,9 +195,9 @@ SoftwareDynamixelInterface::~SoftwareDynamixelInterface()
 
 
 template<class T>
-void setReadMode(T &aStream);
+void setReadMode(T &aStream, uint8_t aTxPin);
 template<class T>
-void setWriteMode(T &aStream);
+void setWriteMode(T &aStream, uint8_t aTxPin);
 
 #if __AVR__
 namespace {
@@ -188,16 +210,17 @@ class HardwareSerialAccess:public HardwareSerial
 }
 
 template<>
-void setReadMode<HardwareSerial>(HardwareSerial &aStream)
+void setReadMode<HardwareSerial>(HardwareSerial &aStream, uint8_t aTxPin)
 {
 	HardwareSerialAccess &stream=reinterpret_cast<HardwareSerialAccess&>(aStream);
 	*(stream.ucsrb()) &= ~_BV(TXEN);
 	*(stream.ucsrb()) |= _BV(RXEN);
 	*(stream.ucsrb()) |= _BV(RXCIE);
+	pinMode(aTxPin, INPUT_PULLUP);
 }
 
 template<>
-void setWriteMode<HardwareSerial>(HardwareSerial &aStream)
+void setWriteMode<HardwareSerial>(HardwareSerial &aStream, uint8_t mTxPin)
 {
 	HardwareSerialAccess &stream=reinterpret_cast<HardwareSerialAccess&>(aStream);
 	*(stream.ucsrb()) &= ~_BV(RXEN);
@@ -210,7 +233,7 @@ void setWriteMode<HardwareSerial>(HardwareSerial &aStream)
 //Arduino 101 specific code
 
 template<>
-void setReadMode<HardwareSerial>(HardwareSerial &aStream)
+void setReadMode<HardwareSerial>(HardwareSerial &aStream, uint8_t mTxPin)
 {
 	//enable pull up to avoid noise on the line
 	pinMode(1, INPUT);
@@ -218,10 +241,11 @@ void setReadMode<HardwareSerial>(HardwareSerial &aStream)
 	// disconnect UART TX and connect UART RX
 	SET_PIN_MODE(16, GPIO_MUX_MODE);
 	SET_PIN_MODE(17, UART_MUX_MODE);
+	pinMode(aTxPin, INPUT_PULLUP);
 }
 
 template<>
-void setWriteMode<HardwareSerial>(HardwareSerial &aStream)
+void setWriteMode<HardwareSerial>(HardwareSerial &aStream, uint8_t mTxPin)
 {
 	// disconnect UART RX and connect UART TX
 	SET_PIN_MODE(17, GPIO_MUX_MODE);
@@ -231,16 +255,16 @@ void setWriteMode<HardwareSerial>(HardwareSerial &aStream)
 #endif
 
 template<>
-void setReadMode<DynSoftwareSerial>(DynSoftwareSerial &aStream)
+void setReadMode<SoftwareSerial>(SoftwareSerial &aStream, uint8_t mTxPin)
 {
-	aStream.disableTx();
+	pinMode(mTxPin, INPUT_PULLUP);
 	aStream.listen();
 }
 
 template<>
-void setWriteMode<DynSoftwareSerial>(DynSoftwareSerial &aStream)
+void setWriteMode<SoftwareSerial>(SoftwareSerial &aStream, uint8_t mTxPin)
 {
 	aStream.stopListening();
-	aStream.enableTx();
+	pinMode(mTxPin, OUTPUT);
 }
 
