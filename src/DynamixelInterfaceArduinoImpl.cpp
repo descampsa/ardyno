@@ -106,6 +106,7 @@ void DynamixelInterfaceImpl<T>::sendPacket(const DynamixelPacket &aPacket)
 	}
 	mStream.write(aPacket.mCheckSum);
 	mStream.flush();
+	mStream.clear();
 	readMode();
 }
 
@@ -113,35 +114,44 @@ template<class T>
 void DynamixelInterfaceImpl<T>::receivePacket(DynamixelPacket &aPacket)
 {
 	static uint8_t buffer[3];
-	aPacket.mIDListSize=0;
-	aPacket.mAddress=255;
-	aPacket.mDataLength=255;
-	if(mStream.readBytes(buffer,2)<2)
+	aPacket.mIDListSize = 0;
+	aPacket.mAddress = 255;
+	aPacket.mDataLength = 255;
+	if (mStream.readBytes(buffer, 2)<2)
 	{
-		aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
+		aPacket.mStatus = DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
 		return;
 	}
-	if(mStream.readBytes(buffer, 3)<3)
+	if (buffer[0] != 255 || buffer[1] != 255)
 	{
-		aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
+		aPacket.mStatus = DYN_STATUS_COM_ERROR;
 		return;
 	}
-	aPacket.mID=buffer[0];
-	aPacket.mLength=buffer[1];
-	aPacket.mStatus=buffer[2];
-	if(aPacket.mLength>2 && mStream.readBytes(reinterpret_cast<char*>(aPacket.mData), aPacket.mLength-2)<(aPacket.mLength-2))
+	if (mStream.readBytes(buffer, 3)<3)
 	{
-		aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
+		aPacket.mStatus = DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
 		return;
 	}
-	if(mStream.readBytes(reinterpret_cast<char*>(&(aPacket.mCheckSum)),1)<1)
+	aPacket.mID = buffer[0];
+	if (aPacket.mLength != buffer[1])
 	{
-		aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
+		aPacket.mStatus = DYN_STATUS_COM_ERROR;
 		return;
 	}
-	if(aPacket.checkSum()!=aPacket.mCheckSum)
+	aPacket.mStatus = buffer[2];
+	if (aPacket.mLength>2 && (int)mStream.readBytes(reinterpret_cast<char*>(aPacket.mData), aPacket.mLength - 2)<(aPacket.mLength - 2))
 	{
-		aPacket.mStatus=DYN_STATUS_COM_ERROR | DYN_STATUS_CHECKSUM_ERROR;
+		aPacket.mStatus = DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
+		return;
+	}
+	if (mStream.readBytes(reinterpret_cast<char*>(&(aPacket.mCheckSum)), 1)<1)
+	{
+		aPacket.mStatus = DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
+		return;
+	}
+	if (aPacket.checkSum() != aPacket.mCheckSum)
+	{
+		aPacket.mStatus = DYN_STATUS_COM_ERROR | DYN_STATUS_CHECKSUM_ERROR;
 	}
 }
 
