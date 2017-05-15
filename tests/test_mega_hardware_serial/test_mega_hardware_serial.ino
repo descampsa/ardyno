@@ -21,7 +21,6 @@ const unsigned int id = 2;
 const long unsigned int baudrate = 1000000;
 
 HardwareDynamixelInterface interface(Serial1);
-DynamixelDevice device(interface, id);
 DynamixelMotor motor(interface, id);
 
 
@@ -82,8 +81,20 @@ test(0_dummy) {
   assertTrue(true);
 }
 
+test(1_communication_test) {
+  test_setup();
+  assertEqual(motor.init(), DYN_STATUS_OK);
+  uint8_t led_state = 1;
+  assertEqual(motor.write(DYN_ADDRESS_LED, led_state), DYN_STATUS_OK);
+  assertEqual(motor.read(DYN_ADDRESS_LED, led_state), DYN_STATUS_OK);
+  assertEqual(led_state, 1);
+  led_state = 0;
+  assertEqual(motor.write(DYN_ADDRESS_LED, led_state), DYN_STATUS_OK);
+  assertEqual(motor.read(DYN_ADDRESS_LED, led_state), DYN_STATUS_OK);
+  assertEqual(led_state, 0);
+}
 
-test(1_junk_in_buffer) {
+test(2_junk_in_buffer) {
   test_setup();
   motor.init();
   motor.enableTorque();
