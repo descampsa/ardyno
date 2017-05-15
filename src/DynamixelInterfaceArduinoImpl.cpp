@@ -106,7 +106,6 @@ void DynamixelInterfaceImpl<T>::sendPacket(const DynamixelPacket &aPacket)
 	}
 	mStream.write(aPacket.mCheckSum);
 	mStream.flush();
-	mStream.clear();
 	readMode();
 }
 
