@@ -50,11 +50,12 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 	/**
 	 * \brief Receive a packet on bus
 	 * \param[out] aPacket : Received packet. mData field must be previously allocated
+	 * \param[in] answerSize : the size of the memory allocated to the mData field
 	 *
 	 * The function wait for a new packet on the bus. Timeout depends of timeout of the underlying stream.
 	 * Return error code in case of communication error (timeout, checksum error, ...)
 	*/
-	void receivePacket(DynamixelPacket &aPacket);
+	void receivePacket(DynamixelPacket &aPacket, uint8_t answerSize = 0);
 
 	/**
          * \brief Stop interface

@@ -1,12 +1,12 @@
 
 #include "DynamixelInterface.h"
 
-void DynamixelInterface::transaction(bool aExpectStatus)
+void DynamixelInterface::transaction(bool aExpectStatus, uint8_t answerSize)
 {
 	sendPacket(mPacket);
 	if(aExpectStatus)
 	{
-		receivePacket(mPacket);
+		receivePacket(mPacket, answerSize);
 	}
 	else
 	{

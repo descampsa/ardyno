@@ -110,7 +110,7 @@ void DynamixelInterfaceImpl<T>::sendPacket(const DynamixelPacket &aPacket)
 }
 
 template<class T>
-void DynamixelInterfaceImpl<T>::receivePacket(DynamixelPacket &aPacket)
+void DynamixelInterfaceImpl<T>::receivePacket(DynamixelPacket &aPacket, uint8_t answerSize)
 {
 	static uint8_t buffer[3];
 	aPacket.mIDListSize = 0;
@@ -131,8 +131,13 @@ void DynamixelInterfaceImpl<T>::receivePacket(DynamixelPacket &aPacket)
 		aPacket.mStatus = DYN_STATUS_COM_ERROR | DYN_STATUS_TIMEOUT;
 		return;
 	}
-	aPacket.mID = buffer[0];
-	if (aPacket.mLength != buffer[1])
+	if (aPacket.mID != buffer[0])
+	{
+		aPacket.mStatus = DYN_STATUS_COM_ERROR;
+		return;
+	}
+	aPacket.mLength = buffer[1];
+	if (aPacket.mLength > 2 && aPacket.mLength - 2 > answerSize)
 	{
 		aPacket.mStatus = DYN_STATUS_COM_ERROR;
 		return;

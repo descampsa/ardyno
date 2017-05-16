@@ -14,10 +14,10 @@ class DynamixelInterface
 	public:
 	virtual void begin(unsigned long aBaud)=0;
 	virtual void sendPacket(const DynamixelPacket &aPacket)=0;
-	virtual void receivePacket(DynamixelPacket &aPacket)=0;
+	virtual void receivePacket(DynamixelPacket &aPacket, uint8_t answerSize = 0)=0;
 	virtual void end()=0;
 	
-	void transaction(bool aExpectStatus);
+	void transaction(bool aExpectStatus, uint8_t answerSize = 0);
 	
 	//sizeof(T) must be lower than DYN_INTERNAL_BUFFER_SIZE, and in any case lower than 256
 	template<class T>
