@@ -137,7 +137,7 @@ void DynamixelInterfaceImpl<T>::receivePacket(DynamixelPacket &aPacket, uint8_t 
 		return;
 	}
 	aPacket.mLength = buffer[1];
-	if (aPacket.mLength > 2 && aPacket.mLength - 2 > answerSize)
+	if (aPacket.mLength > 2 && aPacket.mLength - 2 != answerSize)
 	{
 		aPacket.mStatus = DYN_STATUS_COM_ERROR;
 		return;

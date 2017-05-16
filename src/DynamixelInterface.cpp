@@ -17,21 +17,21 @@ void DynamixelInterface::transaction(bool aExpectStatus, uint8_t answerSize)
 DynamixelStatus DynamixelInterface::read(uint8_t aID, uint8_t aAddress, uint8_t aSize, uint8_t *aPtr, uint8_t aStatusReturnLevel)
 {
 	mPacket=DynamixelPacket(aID, DYN_READ, 4, aPtr, aAddress, aSize);
-	transaction(aStatusReturnLevel>0 && aID!=BROADCAST_ID);
+	transaction(aStatusReturnLevel>0 && aID!=BROADCAST_ID, aSize);
 	return mPacket.mStatus;
 }
 
 DynamixelStatus DynamixelInterface::write(uint8_t aID, uint8_t aAddress, uint8_t aSize, const uint8_t *aPtr, uint8_t aStatusReturnLevel)
 {
 	mPacket=DynamixelPacket(aID, DYN_WRITE, aSize+3, aPtr, aAddress);
-	transaction(aStatusReturnLevel>1 && aID!=BROADCAST_ID);
+	transaction(aStatusReturnLevel>1 && aID!=BROADCAST_ID, aSize);
 	return mPacket.mStatus;
 }
 
 DynamixelStatus DynamixelInterface::regWrite(uint8_t aID, uint8_t aAddress, uint8_t aSize, const uint8_t *aPtr, uint8_t aStatusReturnLevel)
 {
 	mPacket=DynamixelPacket(aID, DYN_REG_WRITE, aSize+3, aPtr, aAddress);
-	transaction(aStatusReturnLevel>1 && aID!=BROADCAST_ID);
+	transaction(aStatusReturnLevel>1 && aID!=BROADCAST_ID, aSize);
 	return mPacket.mStatus;
 }
 
