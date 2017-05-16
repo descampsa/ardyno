@@ -24,14 +24,14 @@ DynamixelStatus DynamixelInterface::read(uint8_t aID, uint8_t aAddress, uint8_t 
 DynamixelStatus DynamixelInterface::write(uint8_t aID, uint8_t aAddress, uint8_t aSize, const uint8_t *aPtr, uint8_t aStatusReturnLevel)
 {
 	mPacket=DynamixelPacket(aID, DYN_WRITE, aSize+3, aPtr, aAddress);
-	transaction(aStatusReturnLevel>1 && aID!=BROADCAST_ID, aSize);
+	transaction(aStatusReturnLevel>1 && aID!=BROADCAST_ID);
 	return mPacket.mStatus;
 }
 
 DynamixelStatus DynamixelInterface::regWrite(uint8_t aID, uint8_t aAddress, uint8_t aSize, const uint8_t *aPtr, uint8_t aStatusReturnLevel)
 {
 	mPacket=DynamixelPacket(aID, DYN_REG_WRITE, aSize+3, aPtr, aAddress);
-	transaction(aStatusReturnLevel>1 && aID!=BROADCAST_ID, aSize);
+	transaction(aStatusReturnLevel>1 && aID!=BROADCAST_ID);
 	return mPacket.mStatus;
 }
 
