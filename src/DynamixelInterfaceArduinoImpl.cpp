@@ -70,6 +70,9 @@ template<class T>
 void DynamixelInterfaceImpl<T>::sendPacket(const DynamixelPacket &aPacket)
 {
 	writeMode();
+	// empty receive buffer, in case of a error in previous transaction
+	while(mStream.available())
+		mStream.read();
 
 	mStream.write(0xFF);
 	mStream.write(0xFF);
@@ -137,7 +140,7 @@ void DynamixelInterfaceImpl<T>::receivePacket(DynamixelPacket &aPacket, uint8_t 
 		return;
 	}
 	aPacket.mLength = buffer[1];
-	if (aPacket.mLength > 2 && aPacket.mLength - 2 != answerSize)
+	if ((aPacket.mLength - 2) != answerSize)
 	{
 		aPacket.mStatus = DYN_STATUS_COM_ERROR;
 		return;
