@@ -150,15 +150,24 @@ enum DynMotorAddress
 	DYN_ADDRESS_CCW_LIMIT		=0x08,
 	/** \brief Maximum torque, uint16_t , writable */
 	DYN_ADDRESS_MAX_TORQUE		=0x0E,
-	
 	/** \brief Enable torque, uint8_t , writable */
 	DYN_ADDRESS_ENABLE_TORQUE		=0x18,
 	/** \brief LED state, uint8_t , writable */
 	DYN_ADDRESS_LED					=0x19,
+	/** \brief CW compliance margin, uint8_t , writable */
+	DYN_ADDRESS_CW_COMP_MARGIN	=0x1A,
+	/** \brief CCW compliance margin, uint8_t , writable */
+	DYN_ADDRESS_CCW_COMP_MARGIN =0x1B,
+	/** \brief CW compliance slope, uint8_t , writable */
+	DYN_ADDRESS_CW_COMP_SLOPE	=0x1C,
+	/** \brief CCW compliance slope, uint8_t , writable */
+	DYN_ADDRESS_CCW_COMP_SLOPE  =0x1D,
 	/** \brief Goal position, uint16_t , writable */
 	DYN_ADDRESS_GOAL_POSITION		=0x1E,
 	/** \brief Goal speed, uint16_t , writable */
 	DYN_ADDRESS_GOAL_SPEED		=0x20,
+
+	DYN_ADDRESS_TORQUE_LIMIT	=0x22,
 	/** \brief Current position, uint16_t , readable */
 	DYN_ADDRESS_CURRENT_POSITION		=0x24,
 };

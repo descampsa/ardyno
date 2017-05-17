@@ -5,7 +5,9 @@ DynamixelDevice::DynamixelDevice(DynamixelInterface &aInterface, DynamixelID aID
 {
 	mStatus=DYN_STATUS_OK;
 	if(mID==BROADCAST_ID)
+	{
 		mStatusReturnLevel=0;
+	}
 }
 
 DynamixelStatus DynamixelDevice::changeId(uint8_t id)
@@ -13,7 +15,9 @@ DynamixelStatus DynamixelDevice::changeId(uint8_t id)
 	DynamixelStatus result;
 	result=write(DYN_ADDRESS_ID, id);
 	if(result==DYN_STATUS_OK)
+	{
 		mID=id;
+	}
 	return result;
 }
 
@@ -99,8 +103,10 @@ void DynamixelMotor::enableTorque(bool aTorque)
 
 void DynamixelMotor::speed(int16_t aSpeed)
 {
-	if(aSpeed<0)
+	if(aSpeed<0) 
+	{
 		aSpeed=-aSpeed | 1024;
+	}
 	write(DYN_ADDRESS_GOAL_SPEED, aSpeed);
 }
 
@@ -121,3 +127,20 @@ uint16_t DynamixelMotor::currentPosition()
 	return currentPosition;
 }
 
+bool DynamixelMotor::setComplianceMargins(byte cw_margin, byte ccw_margin, byte cw_slope, byte ccw_slope)
+{
+	if (DYN_STATUS_OK != write(DYN_ADDRESS_CW_COMP_MARGIN, cw_margin)) { return false; }
+	if (DYN_STATUS_OK != write(DYN_ADDRESS_CCW_COMP_MARGIN, ccw_margin)) { return false; }
+	if (DYN_STATUS_OK != write(DYN_ADDRESS_CW_COMP_SLOPE, cw_slope)) { return false; }
+	if (DYN_STATUS_OK != write(DYN_ADDRESS_CCW_COMP_SLOPE, ccw_slope)) { return false; }
+	return true;
+}
+	
+bool DynamixelMotor::getComplianceMargins(byte &cw_margin, byte &ccw_margin, byte &cw_slope, byte &ccw_slope)
+{
+	if (DYN_STATUS_OK != read(DYN_ADDRESS_CW_COMP_MARGIN, cw_margin)) { return false; }
+	if (DYN_STATUS_OK != read(DYN_ADDRESS_CCW_COMP_MARGIN, ccw_margin)) { return false; }
+	if (DYN_STATUS_OK != read(DYN_ADDRESS_CW_COMP_SLOPE, cw_slope)) { return false; }
+	if (DYN_STATUS_OK != read(DYN_ADDRESS_CCW_COMP_SLOPE, ccw_slope)) { return false; }
+	return true;
+}
