@@ -8,66 +8,67 @@ DynamixelDevice::DynamixelDevice(DynamixelInterface &aInterface, DynamixelID aID
 		mStatusReturnLevel=0;
 }
 
-DynamixelStatus DynamixelDevice::changeId(uint8_t id)
+DynamixelStatus DynamixelDevice::setId(uint8_t aID)
 {
-	DynamixelStatus result;
-	result=write(DYN_ADDRESS_ID, id);
-	if(result==DYN_STATUS_OK)
-		mID=id;
-	return result;
+	write(DYN_ADDRESS_ID, aID);
+	if(mStatus==DYN_STATUS_OK)
+		mID=aID;
+	return mStatus;
 }
 
-uint8_t DynamixelDevice::statusReturnLevel()
+DynamixelStatus DynamixelDevice::getStatusReturnLevel(uint8_t & aSRL)
 {
 	if(mStatusReturnLevel==255)
 	{
-		init();
+		read(DYN_ADDRESS_SRL, mStatusReturnLevel);
 	}
-	return mStatusReturnLevel;
+	aSRL = mStatusReturnLevel;
+	return mStatus;
 }
 
-void DynamixelDevice::statusReturnLevel(uint8_t aSRL)
+DynamixelStatus DynamixelDevice::setStatusReturnLevel(uint8_t aSRL)
 {
 	write(DYN_ADDRESS_SRL, aSRL);
-	if(status()==DYN_STATUS_OK)
+	if(mStatus==DYN_STATUS_OK)
 	{
 		mStatusReturnLevel=aSRL;
 	}
+	return mStatus;
 }
 
-uint16_t DynamixelDevice::model()
+DynamixelStatus DynamixelDevice::getModel(uint16_t &aModel)
 {
-	uint16_t result;
-	read(DYN_ADDRESS_ID, result);
-	return result;
+	read(DYN_ADDRESS_ID, aModel);
+	return mStatus;
 }
 
-uint8_t DynamixelDevice::firmware()
+DynamixelStatus DynamixelDevice::getFirmwareVersion(uint8_t &aFirmwareVersion)
 {
-	uint8_t result;
-	read(DYN_ADDRESS_FIRMWARE, result);
-	return result;
+	read(DYN_ADDRESS_FIRMWARE, aFirmwareVersion);
+	return mStatus;
 }
 
-void DynamixelDevice::communicationSpeed(uint32_t aSpeed)
+DynamixelStatus DynamixelDevice::setBaudRate(int32_t aBaudRate)
 {
-	uint8_t value=2000000/aSpeed-1;
+	uint8_t value=2000000/aBaudRate-1;
 	if(value!=0) // forbid 2MBd rate, because it is out of spec, and can be difficult to undo
 	{
 		write(DYN_ADDRESS_BAUDRATE, value);
+		return mStatus;
 	}
+	return DYN_STATUS_INTERNAL_ERROR;
 }
 
 DynamixelStatus DynamixelDevice::init()
 {
 	mStatusReturnLevel=2;
-	DynamixelStatus status=ping();
-	if(status!=DYN_STATUS_OK)
+	ping();
+	if(mStatus != DYN_STATUS_OK)
 	{
-		return status;
+		return mStatus;
 	}
-	status=read(DYN_ADDRESS_SRL, mStatusReturnLevel);
-	if(status&DYN_STATUS_TIMEOUT)
+	read(DYN_ADDRESS_SRL, mStatusReturnLevel);
+	if(mStatus & DYN_STATUS_TIMEOUT)
 	{
 		mStatusReturnLevel=0;
 	}

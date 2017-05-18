@@ -21,20 +21,21 @@ class DynamixelDevice
 		return mStatus;
 	}
 	
-	DynamixelID id()
+	DynamixelStatus getId(DynamixelID &aID)
 	{
-		return mID;
+		aID = mID;
+		return mStatus;
 	}
-
-	DynamixelStatus changeId(uint8_t id);
 	
-	uint8_t statusReturnLevel();
-	void statusReturnLevel(uint8_t aSRL);
+	DynamixelStatus setId(uint8_t aID);
 	
-	uint16_t model();
-	uint8_t firmware();
+	DynamixelStatus getStatusReturnLevel(uint8_t & aSRL);
+	DynamixelStatus setStatusReturnLevel(uint8_t aSRL);
 	
-	void communicationSpeed(uint32_t aSpeed);
+	DynamixelStatus getModel(uint16_t &aModel);
+	DynamixelStatus getFirmwareVersion(uint8_t &aFirmwareVersion);
+	
+	DynamixelStatus setBaudRate(int32_t aBaudRate);
 	
 	
 	template<class T>

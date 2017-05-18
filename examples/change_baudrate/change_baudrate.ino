@@ -31,7 +31,7 @@ void setup()
   delay(1000);
   
   // set motor baudrate to new baudrate
-  motor.communicationSpeed(baudrate_after);
+  motor.setBaudRate(baudrate_after);
   
   // set arduino baudrate at new baudrate
   delay(100);
