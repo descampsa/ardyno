@@ -95,6 +95,12 @@ class DynamixelMotor:public DynamixelDevice
 	void led(uint8_t aState);
 
 	uint16_t currentPosition();
+
+	DynamixelStatus getCurrentPosition(uint16_t &pos);
+	DynamixelStatus setComplianceMargins(byte cw_margin, byte ccw_margin, byte cw_slope, byte ccw_slope);
+	DynamixelStatus getComplianceMargins(byte &cw_margin, byte &ccw_margin, byte &cw_slope, byte &ccw_slope);
+	
+	DynamixelStatus	isMoving(byte &moving);
 };
 
 #endif

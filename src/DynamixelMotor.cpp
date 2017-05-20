@@ -5,7 +5,9 @@ DynamixelDevice::DynamixelDevice(DynamixelInterface &aInterface, DynamixelID aID
 {
 	mStatus=DYN_STATUS_OK;
 	if(mID==BROADCAST_ID)
+	{
 		mStatusReturnLevel=0;
+	}
 }
 
 DynamixelStatus DynamixelDevice::changeId(uint8_t id)
@@ -13,7 +15,9 @@ DynamixelStatus DynamixelDevice::changeId(uint8_t id)
 	DynamixelStatus result;
 	result=write(DYN_ADDRESS_ID, id);
 	if(result==DYN_STATUS_OK)
+	{
 		mID=id;
+	}
 	return result;
 }
 
@@ -99,8 +103,10 @@ void DynamixelMotor::enableTorque(bool aTorque)
 
 void DynamixelMotor::speed(int16_t aSpeed)
 {
-	if(aSpeed<0)
+	if(aSpeed<0) 
+	{
 		aSpeed=-aSpeed | 1024;
+	}
 	write(DYN_ADDRESS_GOAL_SPEED, aSpeed);
 }
 
@@ -121,3 +127,39 @@ uint16_t DynamixelMotor::currentPosition()
 	return currentPosition;
 }
 
+DynamixelStatus DynamixelMotor::getCurrentPosition(uint16_t &pos)
+{
+	return read(DYN_ADDRESS_CURRENT_POSITION, pos);
+}
+
+DynamixelStatus DynamixelMotor::setComplianceMargins(byte cw_margin, byte ccw_margin, byte cw_slope, byte ccw_slope)
+{
+	DynamixelStatus status;
+	status = write(DYN_ADDRESS_CW_COMP_MARGIN, cw_margin);
+	if (DYN_STATUS_OK != status) { return status; }
+	status = write(DYN_ADDRESS_CCW_COMP_MARGIN, ccw_margin);
+	if (DYN_STATUS_OK != status) { return status; }
+	status = write(DYN_ADDRESS_CW_COMP_SLOPE, cw_slope);
+	if (DYN_STATUS_OK != status) { return status; }
+	status = write(DYN_ADDRESS_CCW_COMP_SLOPE, ccw_slope);
+	return status;
+}
+	
+DynamixelStatus DynamixelMotor::getComplianceMargins(byte &cw_margin, byte &ccw_margin, byte &cw_slope, byte &ccw_slope)
+{
+	DynamixelStatus status;
+	status = read(DYN_ADDRESS_CW_COMP_MARGIN, cw_margin);
+	if (DYN_STATUS_OK != status) { return status; }
+	status = read(DYN_ADDRESS_CCW_COMP_MARGIN, ccw_margin);
+	if (DYN_STATUS_OK != status) { return status; }
+	status = read(DYN_ADDRESS_CW_COMP_SLOPE, cw_slope);
+	if (DYN_STATUS_OK != status) { return status; }
+	status = read(DYN_ADDRESS_CCW_COMP_SLOPE, ccw_slope);
+	if (DYN_STATUS_OK != status) { return status; }
+	return status;
+}
+
+DynamixelStatus DynamixelMotor::isMoving(byte &moving) 
+{
+	return read(DYN_ADDRESS_MOVING, moving);
+}
