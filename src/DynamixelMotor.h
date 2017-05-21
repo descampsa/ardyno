@@ -97,10 +97,10 @@ class DynamixelMotor:public DynamixelDevice
 	uint16_t currentPosition();
 
 	DynamixelStatus getCurrentPosition(uint16_t &pos);
-	DynamixelStatus setComplianceMargins(byte cw_margin, byte ccw_margin, byte cw_slope, byte ccw_slope);
-	DynamixelStatus getComplianceMargins(byte &cw_margin, byte &ccw_margin, byte &cw_slope, byte &ccw_slope);
+	DynamixelStatus setComplianceMargins(uint8_t cw_margin, uint8_t ccw_margin, byte cw_slope, byte ccw_slope);
+	DynamixelStatus getComplianceMargins(uint8_t &cw_margin, uint8_t &ccw_margin, byte &cw_slope, byte &ccw_slope);
 	
-	DynamixelStatus	isMoving(byte &moving);
+	DynamixelStatus	isMoving(uint8_t &moving);
 };
 
 #endif

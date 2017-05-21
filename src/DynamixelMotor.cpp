@@ -132,34 +132,39 @@ DynamixelStatus DynamixelMotor::getCurrentPosition(uint16_t &pos)
 	return read(DYN_ADDRESS_CURRENT_POSITION, pos);
 }
 
-DynamixelStatus DynamixelMotor::setComplianceMargins(byte cw_margin, byte ccw_margin, byte cw_slope, byte ccw_slope)
+DynamixelStatus DynamixelMotor::setComplianceMargins(uint8_t cw_margin, uint8_t ccw_margin, uint8_t cw_slope, byte ccw_slope)
 {
 	DynamixelStatus status;
+
 	status = write(DYN_ADDRESS_CW_COMP_MARGIN, cw_margin);
 	if (DYN_STATUS_OK != status) { return status; }
+
 	status = write(DYN_ADDRESS_CCW_COMP_MARGIN, ccw_margin);
 	if (DYN_STATUS_OK != status) { return status; }
+
 	status = write(DYN_ADDRESS_CW_COMP_SLOPE, cw_slope);
 	if (DYN_STATUS_OK != status) { return status; }
-	status = write(DYN_ADDRESS_CCW_COMP_SLOPE, ccw_slope);
-	return status;
+
+	return write(DYN_ADDRESS_CCW_COMP_SLOPE, ccw_slope);
 }
 	
-DynamixelStatus DynamixelMotor::getComplianceMargins(byte &cw_margin, byte &ccw_margin, byte &cw_slope, byte &ccw_slope)
+DynamixelStatus DynamixelMotor::getComplianceMargins(uint8_t &cw_margin, uint8_t &ccw_margin, uint8_t &cw_slope, byte &ccw_slope)
 {
 	DynamixelStatus status;
+
 	status = read(DYN_ADDRESS_CW_COMP_MARGIN, cw_margin);
 	if (DYN_STATUS_OK != status) { return status; }
+
 	status = read(DYN_ADDRESS_CCW_COMP_MARGIN, ccw_margin);
 	if (DYN_STATUS_OK != status) { return status; }
+
 	status = read(DYN_ADDRESS_CW_COMP_SLOPE, cw_slope);
 	if (DYN_STATUS_OK != status) { return status; }
-	status = read(DYN_ADDRESS_CCW_COMP_SLOPE, ccw_slope);
-	if (DYN_STATUS_OK != status) { return status; }
-	return status;
+	
+	return read(DYN_ADDRESS_CCW_COMP_SLOPE, ccw_slope);
 }
 
-DynamixelStatus DynamixelMotor::isMoving(byte &moving) 
+DynamixelStatus DynamixelMotor::isMoving(uint8_t &moving) 
 {
 	return read(DYN_ADDRESS_MOVING, moving);
 }

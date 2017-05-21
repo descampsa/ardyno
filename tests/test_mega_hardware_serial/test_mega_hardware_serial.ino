@@ -140,10 +140,10 @@ test(3_compliance_margins) {
   byte orig[4] = {0x0};
   byte read[4] = {0x0};
 
-  assertTrue(motor.getComplianceMargins(orig[0], orig[1], orig[2], orig[3]));
+  assertEqual(DYN_STATUS_OK, motor.getComplianceMargins(orig[0], orig[1], orig[2], orig[3]));
 
-  assertTrue(motor.setComplianceMargins(cw_margin, ccw_margin, cw_slope, ccw_slope));
-  assertTrue(motor.getComplianceMargins(read[0], read[1], read[2], read[3]));
+  assertEqual(DYN_STATUS_OK, motor.setComplianceMargins(cw_margin, ccw_margin, cw_slope, ccw_slope));
+  assertEqual(DYN_STATUS_OK, motor.getComplianceMargins(read[0], read[1], read[2], read[3]));
   Serial.print("cw_margin set = ");
   Serial.print(cw_margin, 16);
   Serial.print(" got ");
@@ -154,7 +154,7 @@ test(3_compliance_margins) {
   assertTrue(read[3] == ccw_slope);
 
   // restore state
-  assertTrue(motor.setComplianceMargins(orig[0], orig[1], orig[2], orig[3]));
+  assertEqual(DYN_STATUS_OK, motor.setComplianceMargins(orig[0], orig[1], orig[2], orig[3]));
 }
 
 
