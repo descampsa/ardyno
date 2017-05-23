@@ -127,6 +127,36 @@ test(2_junk_in_buffer) {
   
 }
 
+test(3_compliance_margins) {
+  test_setup();
+  motor.init();
+
+  // Intentional minor deviations from factory default for AX-12
+  byte cw_margin = 0x05;
+  byte ccw_margin = 0x03;
+  byte cw_slope = 0x44;
+  byte ccw_slope = 0x3A;
+
+  byte orig[4] = {0x0};
+  byte read[4] = {0x0};
+
+  assertEqual(DYN_STATUS_OK, motor.getComplianceMargins(orig[0], orig[1], orig[2], orig[3]));
+
+  assertEqual(DYN_STATUS_OK, motor.setComplianceMargins(cw_margin, ccw_margin, cw_slope, ccw_slope));
+  assertEqual(DYN_STATUS_OK, motor.getComplianceMargins(read[0], read[1], read[2], read[3]));
+  Serial.print("cw_margin set = ");
+  Serial.print(cw_margin, 16);
+  Serial.print(" got ");
+  Serial.println(read[0], 16);
+  assertTrue(read[0] == cw_margin);
+  assertTrue(read[1] == ccw_margin);
+  assertTrue(read[2] == cw_slope);
+  assertTrue(read[3] == ccw_slope);
+
+  // restore state
+  assertEqual(DYN_STATUS_OK, motor.setComplianceMargins(orig[0], orig[1], orig[2], orig[3]));
+}
+
 
 void loop() {
   Test::run();
