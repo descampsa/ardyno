@@ -132,7 +132,7 @@ DynamixelStatus DynamixelMotor::getCurrentPosition(uint16_t &pos)
 	return read(DYN_ADDRESS_CURRENT_POSITION, pos);
 }
 
-DynamixelStatus DynamixelMotor::setComplianceMargins(uint8_t cw_margin, uint8_t ccw_margin, uint8_t cw_slope, byte ccw_slope)
+DynamixelStatus DynamixelMotor::setComplianceMargins(uint8_t cw_margin, uint8_t ccw_margin, uint8_t cw_slope, uint8_t ccw_slope)
 {
 	DynamixelStatus status;
 
@@ -148,7 +148,7 @@ DynamixelStatus DynamixelMotor::setComplianceMargins(uint8_t cw_margin, uint8_t 
 	return write(DYN_ADDRESS_CCW_COMP_SLOPE, ccw_slope);
 }
 	
-DynamixelStatus DynamixelMotor::getComplianceMargins(uint8_t &cw_margin, uint8_t &ccw_margin, uint8_t &cw_slope, byte &ccw_slope)
+DynamixelStatus DynamixelMotor::getComplianceMargins(uint8_t &cw_margin, uint8_t &ccw_margin, uint8_t &cw_slope, uint8_t &ccw_slope)
 {
 	DynamixelStatus status;
 
