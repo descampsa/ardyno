@@ -43,7 +43,7 @@ void DynamixelInterfaceImpl<T>::writeMode()
 }
 	
 template<class T>
-DynamixelInterfaceImpl<T>::DynamixelInterfaceImpl(T &aStream, uint8_t aTxPin, uint8_t aDirectionPin=NO_DIR_PORT):
+DynamixelInterfaceImpl<T>::DynamixelInterfaceImpl(T &aStream, uint8_t aTxPin, uint8_t aDirectionPin):
 	mStream(aStream), mDirectionPin(aDirectionPin), mTxPin(aTxPin)
 {
 	if(mDirectionPin!=NO_DIR_PORT)
