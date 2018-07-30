@@ -72,6 +72,7 @@ class DynamixelDevice
 	int setid(uint8_t id) // typedef uint8_t DynamixelID;
 	{
 		mID = id;
+		return 0;
 	}
 	private:
 	
