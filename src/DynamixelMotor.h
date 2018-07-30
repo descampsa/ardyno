@@ -69,7 +69,10 @@ class DynamixelDevice
 	{
 		return mStatus=mInterface.reset(mID, mStatusReturnLevel);
 	}
-	
+	int setid(uint8_t id) // typedef uint8_t DynamixelID;
+	{
+		mID = id;
+	}
 	private:
 	
 	DynamixelInterface &mInterface;
