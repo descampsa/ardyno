@@ -22,6 +22,8 @@ void DynamixelInterfaceImpl<T>::readMode()
 	if(mDirectionPin!=NO_DIR_PORT)
 	{
 		digitalWrite(mDirectionPin, LOW);
+		//enable listen() here:
+		setReadMode(mStream, mTxPin)
 	}
 	else
 	{
@@ -35,6 +37,8 @@ void DynamixelInterfaceImpl<T>::writeMode()
 	if(mDirectionPin!=NO_DIR_PORT)
 	{
 		digitalWrite(mDirectionPin, HIGH);
+                //disable listen() here:
+		setWriteMode(mStream, mTxPin);		
 	}
 	else
 	{
@@ -43,7 +47,7 @@ void DynamixelInterfaceImpl<T>::writeMode()
 }
 	
 template<class T>
-DynamixelInterfaceImpl<T>::DynamixelInterfaceImpl(T &aStream, uint8_t aTxPin, uint8_t aDirectionPin=NO_DIR_PORT):
+DynamixelInterfaceImpl<T>::DynamixelInterfaceImpl(T &aStream, uint8_t aTxPin, uint8_t aDirectionPin):
 	mStream(aStream), mDirectionPin(aDirectionPin), mTxPin(aTxPin)
 {
 	if(mDirectionPin!=NO_DIR_PORT)
