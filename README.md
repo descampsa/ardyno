@@ -1,6 +1,6 @@
 # ardyno
 
-Arduino library for dynamixel servos
+Arduino library for dynamixel servos. Only Dynamixel 1.0 protocol is supported for now.
 
 This library allows you to control the Robotis servo motors that use a custom half-duplex serial protocol. 
 You can control TTL models directly from Arduino, without any additional hardware, using hardware or software UART.
