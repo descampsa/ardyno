@@ -24,7 +24,7 @@ class DynamixelInterfaceImpl:public DynamixelInterface
 	 * \param[in] aTxPin : pin number of the tx pin
 	 * \param[in] aDirectionPin : direction pin, use NO_DIR_PORT if you do not use one (default)
 	*/
-	DynamixelInterfaceImpl(T &aStream, uint8_t aTxPin, uint8_t aDirectionPin);
+	DynamixelInterfaceImpl(T &aStream, uint8_t aTxPin, uint8_t aDirectionPin=NO_DIR_PORT);
 	
 	/**
 	 * \brief Destructor
